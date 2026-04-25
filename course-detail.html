@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程详情 - EduSmart · 哔哩哔哩资源</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/unified-styles.css">
+    <script src="js/daohanglan.js"></script>
+    <script src="js/user-profile.js"></script>
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        'primary-dark': '#5a6fd5',
+                        secondary: '#764ba2',
+                        success: '#36D399',
+                        danger: '#F87272',
+                        warning: '#FBBD23',
+                        info: '#3ABFF8',
+                        dark: '#2d3748',
+                        light: '#F9FAFB',
+                        'gray-light': '#f1f5f9'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                        'hard': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-inter">
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-24 pb-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- 左侧内容区 - 视频和课程内容 -->
+            <div class="lg:w-2/3">
+                <!-- 课程标题和进度 -->
+                <div class="bg-white rounded-xl p-6 shadow-soft mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <!-- 动态标题 -->
+                        <h1 id="course-title" class="text-2xl font-bold text-gray-800">加载中...</h1>
+                        <span class="text-sm text-gray-500">2.4课时/48课时</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-primary">5% 已完成</span>
+                            <span class="text-gray-500">24小时 · 3,250人学习</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 5%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 动态描述 -->
+                    <p id="course-desc" class="text-gray-600 mb-4">正在加载课程描述...</p>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs rounded-full">微积分基础</span>
+                        <span class="px-3 py-1 bg-green-50 text-green-600 text-xs rounded-full">理工科必修</span>
+                        <span class="px-3 py-1 bg-purple-50 text-purple-600 text-xs rounded-full">数学思维</span>
+                        <span class="px-3 py-1 bg-yellow-50 text-yellow-600 text-xs rounded-full">考研数学</span>
+                    </div>
+                </div>
+                
+                <!-- 视频播放器 -->
+                <div class="bg-white rounded-xl shadow-soft overflow-hidden mb-6">
+                    <div class="video-container">
+                        <!-- 动态视频 iframe -->
+                        <iframe id="course-video" src="" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    
+                    <div class="p-4 border-t border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">第一章：函数与极限 - 1.1 函数的概念与性质</h2>
+                        <p class="text-gray-600 mb-4">本节课将介绍函数的基本概念、表示方法和基本性质，包括函数的定义域、值域、有界性、单调性、奇偶性和周期性等。</p>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors btn-hover">
+                                    <i class="fas fa-thumbs-up mr-2"></i>点赞 (124)
+                                </button>
+                                <button class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors btn-hover">
+                                    <i class="fas fa-share-alt mr-2"></i>分享
+                                </button>
+                                <button class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors btn-hover">
+                                    <i class="fas fa-robot mr-2"></i>AI提问
+                                </button>
+                            </div>
+                            
+                            <button class="px-4 py-2 bg-success text-white rounded-lg hover:bg-success/90 transition-colors btn-hover">
+                                <i class="fas fa-check-circle mr-2"></i>完成本节
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 学习目标 -->
+                <div class="bg-white rounded-xl shadow-soft overflow-hidden mb-6">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-bullseye text-primary mr-2"></i>
+                            <span>本节学习目标</span>
+                        </h2>
+                    </div>
+                    <div class="p-4">
+                        <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                            <li>理解函数的概念和表示方法</li>
+                            <li>掌握函数的四种特性：有界性、单调性、奇偶性、周期性</li>
+                            <li>能够判断复合函数和反函数</li>
+                            <li>了解基本初等函数的性质和图像</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 课程资料 -->
+                <div class="bg-white rounded-xl shadow-soft overflow-hidden mb-6">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-file-alt text-primary mr-2"></i>
+                            <span>课程资料</span>
+                        </h2>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-pdf text-red-500 text-xl mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-800">同济大学《高等数学》第七版第一章.pdf</h4>
+                                    <p class="text-xs text-gray-500">5.2 MB</p>
+                                </div>
+                            </div>
+                            <button class="px-3 py-1 bg-primary text-white text-sm rounded hover:bg-primary-dark transition-colors btn-hover">
+                                <i class="fas fa-download mr-1"></i>下载
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-excel text-green-500 text-xl mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-800">函数与极限习题集.xlsx</h4>
+                                    <p class="text-xs text-gray-500">3.7 MB</p>
+                                </div>
+                            </div>
+                            <button class="px-3 py-1 bg-primary text-white text-sm rounded hover:bg-primary-dark transition-colors btn-hover">
+                                <i class="fas fa-download mr-1"></i>下载
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-powerpoint text-orange-500 text-xl mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-800">函数图像与性质.pptx</h4>
+                                    <p class="text-xs text-gray-500">8.1 MB</p>
+                                </div>
+                            </div>
+                            <button class="px-3 py-1 bg-primary text-white text-sm rounded hover:bg-primary-dark transition-colors btn-hover">
+                                <i class="fas fa-download mr-1"></i>下载
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 笔记区域 -->
+                <div class="bg-white rounded-xl shadow-soft overflow-hidden mb-6">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-pencil-alt text-primary mr-2"></i>
+                            <span>我的笔记</span>
+                        </h2>
+                    </div>
+                    
+                    <div class="p-4">
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" rows="5" placeholder="记录本节课的重点内容..."></textarea>
+                        <div class="flex justify-end mt-2">
+                            <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors btn-hover">
+                                保存笔记
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 讨论区 -->
+                <div class="bg-white rounded-xl shadow-soft overflow-hidden">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-comments text-primary mr-2"></i>
+                            <span>课程讨论 (23)</span>
+                        </h2>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="flex mb-4">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full mr-3">
+                            <div class="flex-1">
+                                <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" rows="3" placeholder="有什么问题或想法？"></textarea>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="flex space-x-2">
+                                        <button class="text-gray-500 hover:text-primary transition-colors">
+                                            <i class="fas fa-paperclip"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-primary transition-colors">
+                                            <i class="fas fa-smile"></i>
+                                        </button>
+                                    </div>
+                                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors btn-hover">
+                                        发布
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 评论列表 -->
+                        <div class="space-y-4">
+                            <div class="flex">
+                                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="用户头像" class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-1">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="font-medium text-gray-800">张同学</span>
+                                            <span class="text-xs text-gray-500">3小时前</span>
+                                        </div>
+                                        <p class="text-gray-700 mb-2">老师，在求极限lim(x→0)(sinx/x)=1的证明中，为什么一定要用单位圆和面积比较法？不能直接用泰勒展开吗？</p>
+                                        <div class="flex space-x-4 text-xs text-gray-500">
+                                            <button class="hover:text-primary transition-colors">
+                                                <i class="fas fa-thumbs-up mr-1"></i>15
+                                            </button>
+                                            <button class="hover:text-primary transition-colors">
+                                                <i class="fas fa-reply mr-1"></i>回复
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex mt-4 ml-12">
+                                <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-3">
+                                <div class="flex-1">
+                                    <div class="bg-gray-100 p-3 rounded-lg">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="font-medium text-gray-800">李教授</span>
+                                            <span class="text-xs text-gray-500">2小时前</span>
+                                        </div>
+                                        <p class="text-gray-700 mb-2">这是个很好的问题。使用单位圆证明是基础方法，不依赖更高级的数学工具。泰勒展开本身就需要以这个极限为基础，所以不能循环论证。建议先掌握基本证明方法，等学到泰勒展开后再回顾这个问题。</p>
+                                        <div class="flex space-x-4 text-xs text-gray-500">
+                                            <button class="hover:text-primary transition-colors">
+                                                <i class="fas fa-thumbs-up mr-1"></i>23
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex">
+                                <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="用户头像" class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-1">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="font-medium text-gray-800">王同学</span>
+                                            <span class="text-xs text-gray-500">1天前</span>
+                                        </div>
+                                        <p class="text-gray-700 mb-2">请问分段函数的定义域怎么确定？比如f(x)={x+1,x<0; x^2,x≥0}这样的函数，定义域是所有实数吗？</p>
+                                        <div class="flex space-x-4 text-xs text-gray-500">
+                                            <button class="hover:text-primary transition-colors">
+                                                <i class="fas fa-thumbs-up mr-1"></i>8
+                                            </button>
+                                            <button class="hover:text-primary transition-colors">
+                                                <i class="fas fa-reply mr-1"></i>回复
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧边栏 - 课程目录 -->
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-xl shadow-soft overflow-hidden sticky top-24">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                            <i class="fas fa-list-ol text-primary mr-2"></i>
+                            <span>课程目录</span>
+                        </h2>
+                    </div>
+                    
+                    <!-- 动态侧边栏容器 -->
+                    <div id="course-sidebar" class="overflow-y-auto" style="max-height: calc(100vh - 180px);">
+                        <p class="p-4 text-gray-500">正在加载目录...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 等待 DOM 和外部脚本加载完成
+        document.addEventListener('DOMContentLoaded', () => {
+            // 导航栏滚动效果（如果存在）
+            window.addEventListener('scroll', () => {
+                const navbar = document.getElementById('navbar');
+                if (navbar) {
+                    if (window.scrollY > 10) {
+                        navbar.classList.add('navbar-scrolled');
+                    } else {
+                        navbar.classList.remove('navbar-scrolled');
+                    }
+                }
+            });
+
+            // 获取 URL 参数
+            const params = new URLSearchParams(window.location.search);
+            const knowledgeId = params.get('knowledgeId');
+
+            // 页面关键元素
+            const titleEl = document.getElementById('course-title');
+            const descEl = document.getElementById('course-desc');
+            const videoEl = document.getElementById('course-video');
+            const sidebarEl = document.getElementById('course-sidebar');
+
+            if (!knowledgeId) {
+                // 没有参数时显示默认内容（也可以保持静态样板）
+                if (titleEl) titleEl.textContent = '未指定课程';
+                if (descEl) descEl.textContent = '请从课程列表选择具体知识点。';
+                if (sidebarEl) sidebarEl.innerHTML = '<p class="p-4 text-gray-500">暂无目录</p>';
+                return;
+            }
+
+            // 显示加载状态
+            if (titleEl) titleEl.textContent = '加载中...';
+            if (descEl) descEl.textContent = '正在获取课程信息...';
+
+            // 请求后端数据
+            fetch(`/api/knowledge/${knowledgeId}`, { credentials: 'include' })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error('API 返回失败');
+                    const item = data.data;
+
+                    // 更新标题
+                    if (titleEl) titleEl.textContent = item.name;
+                    // 更新描述
+                    if (descEl) descEl.textContent = item.description || '暂无描述';
+                    // 更新视频 iframe
+                    if (videoEl) {
+                        if (item.bvid) {
+                            videoEl.src = `https://player.bilibili.com/player.html?bvid=${item.bvid}`;
+                        } else {
+                            videoEl.src = '';
+                            console.warn('该知识点没有关联的B站视频');
+                        }
+                    }
+                    // 更新侧边栏（可根据实际需求显示章节等信息）
+                    if (sidebarEl) {
+                        sidebarEl.innerHTML = '<p class="p-4 text-gray-500">暂无课程目录，请观看视频学习。</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载课程详情失败:', error);
+                    if (titleEl) titleEl.textContent = '加载失败';
+                    if (descEl) descEl.textContent = '请检查网络连接或稍后重试。';
+                    if (sidebarEl) sidebarEl.innerHTML = '<p class="p-4 text-red-500">无法获取数据</p>';
+                });
+        });
+    </script>
+</body>
+</html>

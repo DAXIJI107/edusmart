@@ -1,0 +1,36 @@
+{
+  "name": "edu-smart",
+  "version": "1.0.0",
+  "description": "智能学习平台",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "init-db": "mysql -u root -p < create-database.sql && mysql -u root -p < insert-test-data.sql",
+    "update-db": "mysql -u root -p < update-database.sql"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "axios": "^1.15.2",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.2.1",
+    "faker": "^6.6.6",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.14.1",
+    "querystring": "^0.2.1",
+    "url": "^0.11.4",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

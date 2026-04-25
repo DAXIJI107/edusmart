@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能测试系统 - EduSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/unified-styles.css">
+    <script src="js/daohanglan.js"></script>
+    <script src="js/user-profile.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#667eea', 'primary-dark': '#5a6fd5', secondary: '#764ba2', success: '#36D399', danger: '#F87272', warning: '#FBBD23', info: '#3ABFF8', dark: '#2d3748', light: '#F9FAFB', 'gray-light': '#f1f5f9' },
+                    fontFamily: { inter: ['Inter', 'system-ui', 'sans-serif'] },
+                    boxShadow: { soft: '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025)', hard: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-inter">
+    <div class="relative">
+        <button class="text-gray-600 hover:text-primary transition-colors flex items-center"
+                data-bs-toggle="modal" data-bs-target="#error-book-modal">
+            <i class="fas fa-book-open mr-1"></i> 错题本
+            <span class="absolute -top-2 -right-2 bg-danger text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  id="error-count-badge">0</span>
+        </button>
+    </div>
+
+    <main class="container mx-auto px-4 pt-24 pb-12">
+        <!-- 标题和配置区（保持不变） -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center bg-primary/10 text-primary rounded-full px-4 py-1 mb-3">
+                <i class="fas fa-graduation-cap mr-2"></i><span>知识评估</span>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">智能知识水平测试</h1>
+            <p class="text-gray-600 max-w-2xl mx-auto text-lg">选择科目与难度，系统将自动生成个性化试题。</p>
+        </div>
+
+        <div class="bg-white rounded-xl p-8 shadow-soft mb-8 max-w-4xl mx-auto">
+            <h2 class="text-xl font-semibold mb-6"><i class="fas fa-cog text-primary mr-2"></i>测试配置</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div><label class="block text-sm font-medium text-gray-700"><i class="fas fa-book mr-2"></i>科目</label>
+                    <select id="subject-select" class="w-full rounded-lg border-gray-300 bg-white py-3 px-4 pr-10 text-sm">
+                        <option value="math">数学</option><option value="physics">物理</option><option value="chemistry">化学</option><option value="biology">生物</option><option value="english">英语</option></select></div>
+                <div><label class="block text-sm font-medium text-gray-700"><i class="fas fa-signal mr-2"></i>难度</label>
+                    <select id="difficulty-select" class="w-full rounded-lg border-gray-300 bg-white py-3 px-4 pr-10 text-sm">
+                        <option value="easy">简单</option><option value="medium" selected>中等</option><option value="hard">困难</option></select></div>
+                <div><label class="block text-sm font-medium text-gray-700"><i class="fas fa-list-ol mr-2"></i>题数</label>
+                    <select id="question-count" class="w-full rounded-lg border-gray-300 bg-white py-3 px-4 pr-10 text-sm">
+                        <option value="5">5题</option><option value="10" selected>10题</option><option value="15">15题</option><option value="20">20题</option></select></div>
+            </div>
+            <div class="mt-8 text-center">
+                <button id="generate-test" class="px-8 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark"><i class="fas fa-play-circle mr-2"></i>开始测试</button>
+            </div>
+        </div>
+
+        <!-- 测试容器 -->
+        <div id="test-container" class="max-w-4xl mx-auto hidden">
+            <div class="bg-white rounded-t-xl p-6 shadow-soft mb-1 flex justify-between items-center">
+                <div class="flex items-center"><div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-3"><i class="fas fa-clock text-primary text-xl"></i></div><div><p class="text-sm text-gray-500">剩余时间</p><p id="timer" class="text-xl font-bold text-primary">15:00</p></div></div>
+                <div class="flex items-center"><div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-3"><i class="fas fa-list-ol text-primary text-xl"></i></div><div><p class="text-sm text-gray-500">进度</p><p id="progress-text" class="text-xl font-bold text-primary">0/10</p></div></div>
+                <div class="flex items-center"><div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-3"><i class="fas fa-trophy text-warning text-xl"></i></div><div><p class="text-sm text-gray-500">当前得分</p><p id="score-text" class="text-xl font-bold text-warning">0</p></div></div>
+            </div>
+            <div class="bg-white p-4 shadow-soft mb-6 overflow-x-auto"><div class="flex space-x-2 min-w-max" id="question-nav"></div></div>
+            <div id="questions-container" class="bg-white rounded-b-xl p-6 shadow-soft mb-8"></div>
+            <div class="flex justify-between space-x-4">
+                <button id="prev-question" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hidden"><i class="fas fa-arrow-left mr-2"></i>上一题</button>
+                <button id="next-question" class="px-6 py-3 bg-primary text-white rounded-lg">下一题<i class="fas fa-arrow-right ml-2"></i></button>
+                <button id="submit-test" class="px-6 py-3 bg-danger text-white rounded-lg hidden"><i class="fas fa-check-circle mr-2"></i>交卷</button>
+            </div>
+        </div>
+
+        <!-- 结果容器 -->
+        <div id="result-container" class="max-w-4xl mx-auto hidden"></div>
+    </main>
+
+    <!-- 错题本模态框（保持原样即可） -->
+    <div id="error-book-modal" class="modal fade error-book-modal">
+        <div class="modal-dialog modal-lg">...结构同上之前版本...</div>
+    </div>
+    <div class="toast-notification bg-success text-white px-6 py-3 rounded-lg shadow-lg hidden">操作成功！</div>
+
+    <script>
+        // 全局变量
+        let currentTest = { subject: '', difficulty: '', questions: [], userAnswers: [], currentQuestionIndex: 0, timer: null, timeRemaining: 15*60, startTime: null, endTime: null };
+        let questionTypeChart = null;  // 用于保存题型分析图表实例
+
+        const testContainer = document.getElementById('test-container');
+        const questionsContainer = document.getElementById('questions-container');
+        const resultContainer = document.getElementById('result-container');
+        const questionNav = document.getElementById('question-nav');
+        const timerElement = document.getElementById('timer');
+        const progressText = document.getElementById('progress-text');
+        const scoreText = document.getElementById('score-text');
+        const prevButton = document.getElementById('prev-question');
+        const nextButton = document.getElementById('next-question');
+        const submitButton = document.getElementById('submit-test');
+        const generateButton = document.getElementById('generate-test');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadErrorBook(); updateErrorCountBadge(); bindEvents();
+        });
+
+        function bindEvents() {
+            generateButton.addEventListener('click', async () => {
+                const subject = document.getElementById('subject-select').value;
+                const difficulty = document.getElementById('difficulty-select').value;
+                const count = parseInt(document.getElementById('question-count').value);
+                try {
+                    const res = await fetch(`/api/questions?subject=${subject}&difficulty=${difficulty}&count=${count}`, { credentials: 'include' });
+                    const data = await res.json();
+                    if (data.success && data.questions && data.questions.length > 0) {
+                        const questions = data.questions.map(q => {
+                            let opts = q.options;
+                            if (typeof opts === 'string') try { opts = JSON.parse(opts); } catch(e) { opts = []; }
+                            let ans = q.answer;
+                            if (q.type === 'multiple' && typeof ans === 'string') try { ans = JSON.parse(ans); } catch(e) { ans = ans.split(','); }
+                            return { id: q.id, content: q.content, type: q.type, options: Array.isArray(opts) ? opts : [], answer: ans, difficulty: q.difficulty || 'medium', score: q.score, node_id: q.node_id };
+                        });
+                        currentTest = { subject, difficulty, questions, userAnswers: Array(questions.length).fill(null), currentQuestionIndex: 0, timer: null, timeRemaining: difficulty === 'hard' ? 20*60 : difficulty === 'easy' ? 10*60 : 15*60, startTime: new Date(), endTime: null };
+                        renderTest(); renderQuestionNav(); updateProgress(); startTimer();
+                        testContainer.classList.remove('hidden'); resultContainer.classList.add('hidden');
+                        testContainer.scrollIntoView({ behavior: 'smooth' });
+                    } else { alert(data.message || '无法加载题目'); }
+                } catch (e) { alert('网络错误'); }
+            });
+
+            prevButton.addEventListener('click', () => { if (currentTest.currentQuestionIndex > 0) { currentTest.currentQuestionIndex--; renderCurrentQuestion(); updateProgress(); highlightCurrentQuestion(); } });
+            nextButton.addEventListener('click', () => { if (currentTest.currentQuestionIndex < currentTest.questions.length - 1) { currentTest.currentQuestionIndex++; renderCurrentQuestion(); updateProgress(); highlightCurrentQuestion(); } });
+            submitButton.addEventListener('click', () => { if (confirm('确定交卷？')) submitTest(); });
+
+            // 错题本外部按钮
+            document.getElementById('add-all-to-errorbook')?.addEventListener('click', () => addSelectedErrors(true));
+            document.getElementById('add-selected-to-errorbook')?.addEventListener('click', () => addSelectedErrors(false));
+        }
+
+        // 渲染题目
+        function renderCurrentQuestion() {
+            const q = currentTest.questions[currentTest.currentQuestionIndex];
+            questionsContainer.innerHTML = '';
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl p-6 shadow-md mb-6';
+            card.innerHTML = `<div class="flex justify-between items-start mb-4"><span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">第 ${currentTest.currentQuestionIndex + 1} 题</span><span class="px-3 py-1 rounded-full text-xs font-medium ${q.difficulty==='easy'?'bg-green-100 text-green-800':q.difficulty==='medium'?'bg-yellow-100 text-yellow-800':'bg-red-100 text-red-800'}">${q.difficulty}</span></div><div class="mb-6"><h3 class="text-lg font-semibold mb-3">${q.content}</h3></div>`;
+            const typeDiv = document.createElement('div');
+            typeDiv.className = 'ml-4';
+            if (q.type === 'single' || q.type === 'judge') {
+                q.options.forEach((opt, idx) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'mb-3 flex items-center';
+                    optDiv.innerHTML = `<input type="radio" id="q${currentTest.currentQuestionIndex}-${idx}" name="q${currentTest.currentQuestionIndex}" value="${opt}" class="w-4 h-4 text-primary focus:ring-primary border-gray-300" ${currentTest.userAnswers[currentTest.currentQuestionIndex] === opt ? 'checked' : ''}><label for="q${currentTest.currentQuestionIndex}-${idx}" class="ml-2 text-sm font-medium text-gray-700">${opt}</label>`;
+                    typeDiv.appendChild(optDiv);
+                    optDiv.querySelector('input').addEventListener('change', (e) => { currentTest.userAnswers[currentTest.currentQuestionIndex] = e.target.value; updateQuestionNavItem(currentTest.currentQuestionIndex); });
+                });
+            } else if (q.type === 'multiple') {
+                const curAns = currentTest.userAnswers[currentTest.currentQuestionIndex] || [];
+                q.options.forEach((opt, idx) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'mb-3 flex items-center';
+                    optDiv.innerHTML = `<input type="checkbox" id="q${currentTest.currentQuestionIndex}-${idx}" name="q${currentTest.currentQuestionIndex}" value="${opt}" class="w-4 h-4 text-primary focus:ring-primary border-gray-300" ${curAns.includes(opt) ? 'checked' : ''}><label for="q${currentTest.currentQuestionIndex}-${idx}" class="ml-2 text-sm font-medium text-gray-700">${opt}</label>`;
+                    typeDiv.appendChild(optDiv);
+                    optDiv.querySelector('input').addEventListener('change', (e) => {
+                        let cur = currentTest.userAnswers[currentTest.currentQuestionIndex] || [];
+                        if (e.target.checked) { if (!cur.includes(e.target.value)) cur.push(e.target.value); }
+                        else { cur = cur.filter(a => a !== e.target.value); }
+                        currentTest.userAnswers[currentTest.currentQuestionIndex] = cur;
+                        updateQuestionNavItem(currentTest.currentQuestionIndex);
+                    });
+                });
+            } else if (q.type === 'essay') {
+                const ta = document.createElement('textarea');
+                ta.className = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary';
+                ta.rows = 4; ta.placeholder = '请输入答案...';
+                if (currentTest.userAnswers[currentTest.currentQuestionIndex]) ta.value = currentTest.userAnswers[currentTest.currentQuestionIndex];
+                ta.addEventListener('input', () => { currentTest.userAnswers[currentTest.currentQuestionIndex] = ta.value; updateQuestionNavItem(currentTest.currentQuestionIndex); });
+                typeDiv.appendChild(ta);
+            }
+            card.appendChild(typeDiv);
+            questionsContainer.appendChild(card);
+        }
+
+        // 题目导航
+        function renderQuestionNav() {
+            questionNav.innerHTML = '';
+            currentTest.questions.forEach((_, idx) => {
+                const nav = document.createElement('button');
+                nav.id = `question-nav-${idx}`;
+                nav.className = `w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ${idx === currentTest.currentQuestionIndex ? 'bg-primary text-white shadow-lg' : 'bg-gray-200 text-gray-700'}`;
+                nav.textContent = idx + 1;
+                nav.addEventListener('click', () => { currentTest.currentQuestionIndex = idx; renderCurrentQuestion(); updateProgress(); highlightCurrentQuestion(); });
+                questionNav.appendChild(nav);
+            });
+        }
+
+        function updateQuestionNavItem(index) {
+            const nav = document.getElementById(`question-nav-${index}`);
+            if (!nav) return;
+            const hasAnswer = currentTest.userAnswers[index] !== null && (typeof currentTest.userAnswers[index] === 'string' ? currentTest.userAnswers[index].trim() !== '' : currentTest.userAnswers[index] && currentTest.userAnswers[index].length > 0);
+            if (index === currentTest.currentQuestionIndex) nav.className = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium bg-primary text-white shadow-lg';
+            else if (hasAnswer) nav.className = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium bg-green-500 text-white shadow-md';
+            else nav.className = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium bg-gray-200 text-gray-700';
+        }
+
+        function highlightCurrentQuestion() { currentTest.questions.forEach((_, idx) => updateQuestionNavItem(idx)); }
+        function updateProgress() {
+            const answered = currentTest.userAnswers.filter(a => a !== null && (typeof a === 'string' ? a.trim() !== '' : a.length > 0)).length;
+            progressText.textContent = `${currentTest.currentQuestionIndex + 1}/${currentTest.questions.length}`;
+            scoreText.textContent = answered;
+            prevButton.disabled = currentTest.currentQuestionIndex === 0;
+            nextButton.disabled = currentTest.currentQuestionIndex === currentTest.questions.length - 1;
+            if (currentTest.currentQuestionIndex === currentTest.questions.length - 1) { submitButton.classList.remove('hidden'); nextButton.classList.add('hidden'); }
+            else { submitButton.classList.add('hidden'); nextButton.classList.remove('hidden'); }
+        }
+        function renderTest() { testContainer.classList.remove('hidden'); resultContainer.classList.add('hidden'); renderCurrentQuestion(); updateProgress(); }
+
+        // 计时器
+        function startTimer() {
+            if (currentTest.timer) clearInterval(currentTest.timer);
+            currentTest.timer = setInterval(() => {
+                currentTest.timeRemaining--;
+                if (currentTest.timeRemaining <= 0) { clearInterval(currentTest.timer); submitTest(); return; }
+                const mins = Math.floor(currentTest.timeRemaining / 60), secs = currentTest.timeRemaining % 60;
+                timerElement.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                if (currentTest.timeRemaining <= 60) { timerElement.classList.add('text-danger'); timerElement.classList.remove('text-primary'); }
+                else { timerElement.classList.add('text-primary'); timerElement.classList.remove('text-danger'); }
+            }, 1000);
+        }
+
+        // 提交测试
+        function submitTest() {
+            clearInterval(currentTest.timer);
+            currentTest.endTime = new Date();
+            let correctCount = 0;
+            const wrongQuestions = [];
+            currentTest.questions.forEach((q, idx) => {
+                const ua = currentTest.userAnswers[idx];
+                let isCorrect = false;
+                if (q.type === 'single' || q.type === 'judge') isCorrect = ua === q.answer;
+                else if (q.type === 'multiple') {
+                    const correctArr = Array.isArray(q.answer) ? q.answer : (typeof q.answer === 'string' ? JSON.parse(q.answer) : []);
+                    isCorrect = ua && ua.length === correctArr.length && ua.every(a => correctArr.includes(a));
+                } else isCorrect = ua && ua.trim() !== '';
+                if (isCorrect) correctCount++;
+                else wrongQuestions.push({ question: q, userAnswer: q.type === 'multiple' ? (ua||[]).join('、') : ua });
+            });
+            const score = Math.round((correctCount / currentTest.questions.length) * 100);
+            renderResult(correctCount, score, wrongQuestions);
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 渲染结果
+        function renderResult(correctCount, score, wrongQuestions) {
+            testContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+            const timeSpent = Math.floor((currentTest.endTime - currentTest.startTime) / 1000);
+            resultContainer.innerHTML = `
+                <div class="bg-white rounded-2xl p-8 shadow-soft">
+                    <div class="text-center mb-8"><div class="inline-flex items-center justify-center bg-success/10 text-success rounded-full px-4 py-1 mb-3"><i class="fas fa-check-circle mr-2"></i>测试完成</div><h2 class="text-3xl font-bold text-gray-800 mb-2">测试结果分析</h2></div>
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl p-6 text-center">
+                            <div class="text-5xl font-bold text-primary">${score}</div><p>得分</p>
+                            <p class="text-gray-600">${score>=90?'优秀！':score>=70?'良好！':score>=60?'及格！':'有待提高！'}</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between"><span>答对</span><span class="font-bold">${correctCount}</span></div>
+                            <div class="flex justify-between"><span>答错</span><span class="font-bold">${currentTest.questions.length - correctCount}</span></div>
+                            <div class="flex justify-between"><span>用时</span><span class="font-bold">${Math.floor(timeSpent/60)}分${timeSpent%60}秒</span></div>
+                        </div>
+                    </div>
+                    <div class="mb-8"><h3 class="font-semibold text-lg mb-4">题型分析</h3><div class="h-64"><canvas id="question-type-chart"></canvas></div></div>
+                    <div class="mt-8 text-center">
+                        <button id="restart-test-btn" class="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark mr-4"><i class="fas fa-redo mr-2"></i>重新测试</button>
+                        <button id="add-all-errorbook-btn" class="px-8 py-3 bg-danger text-white rounded-lg hover:bg-danger/90"><i class="fas fa-plus mr-2"></i>全部加入错题本</button>
+                    </div>
+                </div>`;
+            // 绑定重新测试
+            document.getElementById('restart-test-btn').addEventListener('click', () => {
+                resultContainer.classList.add('hidden');
+                document.getElementById('subject-select').value = currentTest.subject;
+                document.getElementById('difficulty-select').value = currentTest.difficulty;
+                document.getElementById('question-count').value = currentTest.questions.length;
+            });
+            // 绑定全部加入错题本
+            document.getElementById('add-all-errorbook-btn').addEventListener('click', () => {
+                const wrongList = getWrongQuestions();
+                if (wrongList.length === 0) { showToast('没有错题'); return; }
+                let added = 0;
+                wrongList.forEach(wq => { addErrorToBook(wq); added++; });
+                showToast(`已添加 ${added} 道错题`); updateErrorCountBadge();
+            });
+            // 绘制题型分析图表
+            renderQuestionTypeChart();
+        }
+
+        function renderQuestionTypeChart() {
+            const ctx = document.getElementById('question-type-chart')?.getContext('2d');
+            if (!ctx) return;
+            if (questionTypeChart) questionTypeChart.destroy();
+            const types = { single: 0, multiple: 0, judge: 0, essay: 0 };
+            const correctTypes = { single: 0, multiple: 0, judge: 0, essay: 0 };
+            currentTest.questions.forEach((q, idx) => {
+                types[q.type] = (types[q.type] || 0) + 1;
+                const ua = currentTest.userAnswers[idx];
+                let isCorrect = false;
+                if (q.type === 'single' || q.type === 'judge') isCorrect = ua === q.answer;
+                else if (q.type === 'multiple') {
+                    const ca = Array.isArray(q.answer) ? q.answer : JSON.parse(q.answer);
+                    isCorrect = ua && ua.length === ca.length && ua.every(a => ca.includes(a));
+                } else isCorrect = ua && ua.trim() !== '';
+                if (isCorrect) correctTypes[q.type] = (correctTypes[q.type] || 0) + 1;
+            });
+            const labels = ['单选题', '多选题', '判断题', '主观题'];
+            const data = labels.map((_, i) => {
+                const t = Object.keys(types)[i];
+                return types[t] ? Math.round((correctTypes[t] / types[t]) * 100) : 0;
+            });
+            questionTypeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: '正确率 (%)',
+                        data,
+                        backgroundColor: ['rgba(22,93,255,0.7)','rgba(54,211,153,0.7)','rgba(251,189,35,0.7)','rgba(248,114,114,0.7)'],
+                        borderColor: ['rgb(22,93,255)','rgb(54,211,153)','rgb(251,189,35)','rgb(248,114,114)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // 错题本相关函数（完整保留）
+        function getWrongQuestions() {
+            const wrong = [];
+            currentTest.questions.forEach((q, idx) => {
+                const ua = currentTest.userAnswers[idx];
+                let correct = false;
+                if (q.type === 'single' || q.type === 'judge') correct = ua === q.answer;
+                else if (q.type === 'multiple') {
+                    const ca = Array.isArray(q.answer) ? q.answer : JSON.parse(q.answer);
+                    correct = ua && ua.length === ca.length && ua.every(a => ca.includes(a));
+                } else correct = ua && ua.trim() !== '';
+                if (!correct) wrong.push({ question: q, userAnswer: q.type === 'multiple' ? (ua||[]).join('、') : ua });
+            });
+            return wrong;
+        }
+
+        function addErrorToBook(wrongQuestion) {
+            const q = wrongQuestion.question;
+            const book = JSON.parse(localStorage.getItem('errorBook') || '[]');
+            const uid = `${currentTest.subject}_${q.id}`;
+            if (book.some(e => e.uid === uid)) return;
+            const correctAns = Array.isArray(q.answer) ? q.answer.join('、') : q.answer;
+            book.push({ uid, id: q.id, content: q.content, userAnswer: wrongQuestion.userAnswer, correctAnswer: correctAns, explanation: q.explanation || '暂无解析', subject: currentTest.subject, difficulty: q.difficulty, addedTime: new Date().toISOString(), mastery: 0 });
+            localStorage.setItem('errorBook', JSON.stringify(book));
+        }
+
+        function removeFromErrorBook(uid) {
+            if (confirm('确定移除吗？')) {
+                let book = JSON.parse(localStorage.getItem('errorBook') || '[]');
+                book = book.filter(e => e.uid !== uid);
+                localStorage.setItem('errorBook', JSON.stringify(book));
+                renderErrorBookList(); updateErrorCountBadge(); showToast('已移除');
+            }
+        }
+
+        function renderErrorBookList() {
+            const book = JSON.parse(localStorage.getItem('errorBook') || '[]');
+            const container = document.getElementById('error-book-list');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!book.length) { container.innerHTML = '<div class="text-center p-4 text-gray-500">错题本为空</div>'; return; }
+            book.forEach(err => {
+                const d = new Date(err.addedTime);
+                const formattedDate = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+                const masteryClass = err.mastery === 0 ? 'bg-danger' : err.mastery === 1 ? 'bg-warning' : 'bg-success';
+                const masteryText = err.mastery === 0 ? '未掌握' : err.mastery === 1 ? '复习中' : '已掌握';
+                const item = document.createElement('div');
+                item.className = 'bg-white border border-gray-200 rounded-lg p-4 mb-3';
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h6 class="font-medium mb-1">${err.content}</h6>
+                            <div class="text-sm text-gray-500 mb-2"><span class="mr-2">${formattedDate}</span><span>难度: ${err.difficulty}</span></div>
+                            <div class="ms-3 mt-2"><div class="p-2 mb-2 bg-gray-50 rounded"><p class="font-medium">你的答案：</p><p>${err.userAnswer || '未作答'}</p></div><div class="p-2 bg-gray-50 rounded"><p class="font-medium">正确答案：</p><p>${err.correctAnswer}</p></div></div>
+                        </div>
+                        <div class="ml-4 text-center">
+                            <span class="inline-block px-2 py-1 text-xs font-medium rounded-full ${masteryClass} text-white mb-2">${masteryText}</span>
+                            <div class="flex flex-col space-y-1">
+                                <button class="px-3 py-1 text-xs bg-primary text-white rounded hover:bg-primary-dark retry-error-btn" data-uid="${err.uid}"><i class="fas fa-redo mr-1"></i>重做</button>
+                                <button class="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 mastery-up-btn" data-uid="${err.uid}" ${err.mastery >= 2 ? 'disabled' : ''}><i class="fas fa-arrow-up mr-1"></i>掌握度+</button>
+                                <button class="px-3 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 mastery-down-btn" data-uid="${err.uid}" ${err.mastery <= 0 ? 'disabled' : ''}><i class="fas fa-arrow-down mr-1"></i>掌握度-</button>
+                                <button class="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 delete-error-btn" data-uid="${err.uid}"><i class="fas fa-trash mr-1"></i>删除</button>
+                            </div>
+                        </div>
+                    </div>`;
+                container.appendChild(item);
+            });
+            container.querySelectorAll('.delete-error-btn').forEach(btn => btn.addEventListener('click', function() { removeFromErrorBook(this.getAttribute('data-uid')); }));
+            container.querySelectorAll('.mastery-up-btn').forEach(btn => btn.addEventListener('click', function() {
+                const uid = this.getAttribute('data-uid');
+                const b = JSON.parse(localStorage.getItem('errorBook') || '[]');
+                const idx = b.findIndex(e => e.uid === uid);
+                if (idx !== -1 && b[idx].mastery < 2) { b[idx].mastery++; localStorage.setItem('errorBook', JSON.stringify(b)); renderErrorBookList(); updateErrorCountBadge(); }
+            }));
+            container.querySelectorAll('.mastery-down-btn').forEach(btn => btn.addEventListener('click', function() {
+                const uid = this.getAttribute('data-uid');
+                const b = JSON.parse(localStorage.getItem('errorBook') || '[]');
+                const idx = b.findIndex(e => e.uid === uid);
+                if (idx !== -1 && b[idx].mastery > 0) { b[idx].mastery--; localStorage.setItem('errorBook', JSON.stringify(b)); renderErrorBookList(); updateErrorCountBadge(); }
+            }));
+            container.querySelectorAll('.retry-error-btn').forEach(btn => btn.addEventListener('click', function() {
+                const uid = this.getAttribute('data-uid');
+                const err = JSON.parse(localStorage.getItem('errorBook') || '[]').find(e => e.uid === uid);
+                if (err) alert(`将加载题目：${err.content} 进行重做练习`);
+            }));
+        }
+
+        function loadErrorBook() { return JSON.parse(localStorage.getItem('errorBook') || '[]'); }
+        function updateErrorCountBadge() { const b = loadErrorBook(); const badge = document.getElementById('error-count-badge'); badge.textContent = b.length; badge.style.display = b.length ? 'flex' : 'none'; }
+        function showToast(msg) { const t = document.querySelector('.toast-notification'); t.textContent = msg; t.classList.remove('hidden'); t.classList.add('flex','items-center','justify-center'); setTimeout(() => { t.classList.add('hidden'); t.classList.remove('flex','items-center','justify-center'); }, 3000); }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const errorBookModal = new bootstrap.Modal(document.getElementById('error-book-modal'));
+        document.getElementById('error-book-modal').addEventListener('shown.bs.modal', renderErrorBookList);
+        document.getElementById('error-book-modal').addEventListener('hidden.bs.modal', updateErrorCountBadge);
+    </script>
+</body>
+</html>

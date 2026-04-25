@@ -1,0 +1,1005 @@
+/* ============ CSS 变量与基础配置 ============ */
+:root {
+    --apple-blue: #007AFF;
+    --apple-blue-hover: #0066D6;
+    --apple-blue-active: #0055BB;
+    --apple-blue-light: rgba(0, 122, 255, 0.08);
+    --apple-blue-glow: rgba(0, 122, 255, 0.35);
+    --apple-red: #FF3B30;
+    --apple-green: #34C759;
+    --apple-gray-100: #F5F5F7;
+    --apple-gray-200: #E8E8ED;
+    --apple-gray-300: #D1D1D6;
+    --apple-gray-400: #AEAEB2;
+    --apple-gray-500: #8E8E93;
+    --apple-gray-600: #636366;
+    --apple-gray-700: #48484A;
+    /* 卡片毛玻璃 - 略微提升不透明度以确保在图片背景上的可读性 */
+    --card-bg: rgba(255, 255, 255, 0.82);
+    --card-border: rgba(255, 255, 255, 0.55);
+    --card-shadow-1: 0 2px 24px rgba(0, 0, 0, 0.06);
+    --card-shadow-2: 0 8px 48px rgba(0, 0, 0, 0.08);
+    --card-shadow-3: 0 20px 80px rgba(0, 0, 0, 0.10);
+    --font-stack: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+    --transition-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --transition-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-spring-soft: cubic-bezier(0.42, 1.2, 0.58, 1);
+    --transition-damped: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+}
+
+/* ============ 全局重置 ============ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body.auth-page {
+    font-family: var(--font-stack);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1c1c1e;
+    /* 深色后备背景 */
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ============ 动态流动背景 ============ */
+.auth-background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    /*
+      背景图片配置：
+      - 第一层：半透明渐变（与图片混合，保持苹果风格色调统一）
+      - 第二层：用户上传的图片 image.png
+      如需更换图片，请修改下方 url('image.png') 为您的图片路径
+    */
+    background:
+        linear-gradient(160deg,
+            rgba(28, 28, 30, 0.18) 0%,
+            rgba(44, 44, 48, 0.15) 25%,
+            rgba(38, 38, 44, 0.18) 50%,
+            rgba(44, 44, 48, 0.15) 75%,
+            rgba(28, 28, 30, 0.18) 100%),
+        url('image.png') center / cover no-repeat;
+    /* 后备纯色，在图片加载失败时显示 */
+    background-color: #1c1c1e;
+    overflow: hidden;
+}
+
+.auth-overlay {
+    position: absolute;
+    inset: 0;
+    /*
+      叠加层：柔和的径向光晕
+      - 降低不透明度，让背景图片清晰可见
+      - 在卡片区域周围营造微妙的光线引导
+      - 同时确保卡片上的文字始终可读
+    */
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(120, 140, 210, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 60%, rgba(180, 140, 220, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 40% 80%, rgba(140, 180, 220, 0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* 流动光球 - 在图片上方飘动，增添动态氛围 */
+.flow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    will-change: transform;
+    /* 降低光球不透明度，让背景图片更突出 */
+}
+
+.flow-orb--1 {
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(130, 160, 240, 0.28) 0%, rgba(130, 160, 240, 0.03) 70%, transparent 100%);
+    top: -8%;
+    left: 10%;
+    animation: orbFloat1 16s ease-in-out infinite;
+}
+
+.flow-orb--2 {
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(190, 150, 230, 0.24) 0%, rgba(190, 150, 230, 0.03) 70%, transparent 100%);
+    top: 55%;
+    right: -5%;
+    animation: orbFloat2 20s ease-in-out infinite;
+}
+
+.flow-orb--3 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(150, 190, 235, 0.22) 0%, rgba(150, 190, 235, 0.03) 70%, transparent 100%);
+    bottom: -10%;
+    left: 30%;
+    animation: orbFloat3 18s ease-in-out infinite;
+}
+
+.flow-orb--4 {
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(210, 170, 200, 0.20) 0%, rgba(210, 170, 200, 0.02) 70%, transparent 100%);
+    top: 30%;
+    left: 55%;
+    animation: orbFloat4 14s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(120px, 60px) scale(1.12);
+    }
+    50% {
+        transform: translate(40px, -30px) scale(0.92);
+    }
+    75% {
+        transform: translate(-60px, 80px) scale(1.06);
+    }
+}
+
+@keyframes orbFloat2 {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(-90px, -50px) scale(1.10);
+    }
+    50% {
+        transform: translate(-30px, 70px) scale(0.90);
+    }
+    75% {
+        transform: translate(70px, -40px) scale(1.08);
+    }
+}
+
+@keyframes orbFloat3 {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(80px, -70px) scale(1.14);
+    }
+    66% {
+        transform: translate(-100px, 30px) scale(0.88);
+    }
+}
+
+@keyframes orbFloat4 {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    30% {
+        transform: translate(-50px, -60px) scale(1.09);
+    }
+    60% {
+        transform: translate(60px, 40px) scale(0.93);
+    }
+    85% {
+        transform: translate(-30px, 20px) scale(1.05);
+    }
+}
+
+/* ============ 微光粒子 ============ */
+.particles-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 0 6px rgba(180, 200, 240, 0.4);
+    animation: particleDrift linear infinite;
+    pointer-events: none;
+}
+
+@keyframes particleDrift {
+    0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+    }
+    5% {
+        opacity: 0.7;
+    }
+    40% {
+        opacity: 0.4;
+    }
+    90% {
+        opacity: 0.03;
+    }
+    100% {
+        transform: translateY(-110vh) translateX(40px) scale(0.3);
+        opacity: 0;
+    }
+}
+
+/* ============ 外层包装 ============ */
+.auth-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* ============ 毛玻璃卡片 ============ */
+.auth-card {
+    width: 100%;
+    background: var(--card-bg);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-xl);
+    padding: 36px 32px 32px;
+    box-shadow: var(--card-shadow-1), var(--card-shadow-2), var(--card-shadow-3);
+    transition:
+        transform 0.5s var(--transition-smooth),
+        box-shadow 0.5s var(--transition-smooth),
+        border-color 0.5s var(--transition-smooth);
+    position: relative;
+    overflow: visible;
+}
+
+/* 卡片顶部微妙光泽 */
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.55) 20%,
+            rgba(255, 255, 255, 0.75) 50%,
+            rgba(255, 255, 255, 0.55) 80%,
+            transparent);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* 桌面端卡片hover微浮 */
+@media (hover: hover) and (pointer: fine) {
+    .auth-card:hover {
+        transform: translateY(-3px);
+        box-shadow:
+            0 4px 32px rgba(0, 0, 0, 0.10),
+            0 12px 56px rgba(0, 0, 0, 0.12),
+            0 24px 90px rgba(0, 0, 0, 0.14);
+        border-color: rgba(255, 255, 255, 0.65);
+    }
+}
+
+/* ============ Logo区域 ============ */
+.auth-logo-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+.auth-logo {
+    font-size: 44px;
+    color: var(--apple-blue);
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 2px 8px rgba(0, 122, 255, 0.35));
+    animation: logoPulse 4s ease-in-out infinite;
+}
+
+.auth-logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(0, 122, 255, 0.30) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 1;
+    animation: glowBreathe 3.5s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+@keyframes glowBreathe {
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.35;
+    }
+}
+
+.auth-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #1d1d1f;
+    margin-bottom: 2px;
+    font-family: var(--font-stack);
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--apple-gray-500);
+    letter-spacing: 0.1px;
+    margin: 0;
+}
+
+/* ============ 标签导航 ============ */
+.auth-tabs-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.auth-tabs {
+    border-bottom: none;
+    gap: 4px;
+    position: relative;
+    display: flex;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: var(--radius-md);
+    padding: 4px;
+}
+
+.auth-tabs .nav-item {
+    flex: 1;
+}
+
+.auth-tabs .nav-link {
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--apple-gray-600);
+    background: transparent;
+    transition:
+        color 0.3s var(--transition-smooth),
+        background 0.3s var(--transition-smooth);
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    font-family: var(--font-stack);
+    letter-spacing: -0.1px;
+    width: 100%;
+    text-align: center;
+}
+
+.auth-tabs .nav-link.active {
+    color: #1d1d1f;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+    font-weight: 600;
+}
+
+.auth-tabs .nav-link:hover:not(.active) {
+    color: #3a3a3c;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* 滑动指示器 */
+.tab-indicator {
+    display: none;
+}
+
+/* ============ 表单样式 ============ */
+.auth-form {
+    position: relative;
+}
+
+/* 输入框组 */
+.input-group-apple {
+    position: relative;
+}
+
+.input-group-apple .form-control {
+    border: 1.5px solid var(--apple-gray-300);
+    border-radius: var(--radius-md);
+    padding: 16px 14px 8px;
+    font-size: 15px;
+    font-weight: 400;
+    color: #1d1d1f;
+    background: rgba(255, 255, 255, 0.60);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+        border-color 0.35s var(--transition-damped),
+        box-shadow 0.35s var(--transition-damped),
+        background 0.35s var(--transition-smooth),
+        transform 0.2s var(--transition-smooth);
+    height: 54px;
+    font-family: var(--font-stack);
+    letter-spacing: -0.1px;
+}
+
+.input-group-apple .form-control:focus {
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 4px var(--apple-blue-light), 0 0 0 1px rgba(0, 122, 255, 0.2);
+    background: rgba(255, 255, 255, 0.90);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.input-group-apple .form-control:focus~.input-focus-ring {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+/* 焦点光环指示器 */
+.input-focus-ring {
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: var(--apple-blue);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: center;
+    opacity: 0;
+    transition:
+        transform 0.4s var(--transition-spring),
+        opacity 0.25s var(--transition-smooth);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.input-group-apple .form-control:focus~.input-focus-ring {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+/* 浮动标签 */
+.input-group-apple .form-floating>label,
+.input-group-apple label {
+    color: var(--apple-gray-500);
+    font-size: 15px;
+    font-weight: 400;
+    padding: 16px 14px;
+    transition:
+        transform 0.3s var(--transition-spring-soft),
+        font-size 0.3s var(--transition-spring-soft),
+        color 0.3s var(--transition-smooth),
+        opacity 0.3s var(--transition-smooth);
+    font-family: var(--font-stack);
+    letter-spacing: -0.1px;
+    pointer-events: none;
+}
+
+.input-group-apple .form-control:focus~label,
+.input-group-apple .form-control:not(:placeholder-shown)~label {
+    transform: translateY(-6px) scale(0.78);
+    color: var(--apple-blue);
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.input-group-apple .label-icon {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+/* 密码切换按钮 */
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--apple-gray-400);
+    cursor: pointer;
+    z-index: 4;
+    padding: 6px 8px;
+    border-radius: var(--radius-full);
+    transition:
+        color 0.25s var(--transition-smooth),
+        background 0.25s var(--transition-smooth);
+    font-size: 16px;
+    line-height: 1;
+}
+
+.password-toggle:hover {
+    color: var(--apple-gray-700);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.password-toggle:active {
+    transform: translateY(-50%) scale(0.9);
+    transition: transform 0.15s var(--transition-spring);
+}
+
+/* 密码匹配图标 */
+.password-match-icon {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.3s var(--transition-smooth);
+}
+
+.password-match-icon.match {
+    opacity: 1;
+    color: var(--apple-green);
+}
+
+.password-match-icon.mismatch {
+    opacity: 1;
+    color: var(--apple-red);
+}
+
+/* ============ 自定义复选框 ============ */
+.apple-check .form-check-input {
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-xs);
+    border: 2px solid var(--apple-gray-300);
+    background-color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition:
+        background-color 0.25s var(--transition-damped),
+        border-color 0.25s var(--transition-damped),
+        transform 0.2s var(--transition-spring),
+        box-shadow 0.25s var(--transition-smooth);
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    flex-shrink: 0;
+    margin-top: 0;
+}
+
+.apple-check .form-check-input:checked {
+    background-color: var(--apple-blue);
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 4px var(--apple-blue-light);
+}
+
+.apple-check .form-check-input:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    animation: checkBounce 0.3s var(--transition-spring);
+}
+
+.apple-check .form-check-input:hover {
+    border-color: var(--apple-gray-400);
+    transform: scale(1.05);
+}
+
+.apple-check .form-check-input:active {
+    transform: scale(0.92);
+}
+
+.apple-check .form-check-input:focus {
+    box-shadow: 0 0 0 4px var(--apple-blue-light);
+    border-color: var(--apple-blue);
+    outline: none;
+}
+
+.apple-check .form-check-label {
+    font-size: 14px;
+    color: var(--apple-gray-600);
+    cursor: pointer;
+    user-select: none;
+    padding-left: 4px;
+    font-family: var(--font-stack);
+}
+
+@keyframes checkBounce {
+    0% {
+        transform: rotate(45deg) scale(0);
+    }
+    60% {
+        transform: rotate(45deg) scale(1.3);
+    }
+    100% {
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+/* ============ 链接样式 ============ */
+.forgot-link,
+.terms-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--apple-blue);
+    transition:
+        color 0.25s var(--transition-smooth),
+        opacity 0.25s var(--transition-smooth);
+    text-decoration: none;
+    position: relative;
+}
+
+.forgot-link::after,
+.terms-link::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s var(--transition-damped);
+    opacity: 0.5;
+}
+
+.forgot-link:hover::after,
+.terms-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.forgot-link:hover,
+.terms-link:hover {
+    color: var(--apple-blue-hover);
+    opacity: 0.85;
+}
+
+.forgot-link:active,
+.terms-link:active {
+    opacity: 0.6;
+}
+
+/* ============ 苹果风格按钮 ============ */
+.apple-btn {
+    border-radius: var(--radius-md) !important;
+    padding: 14px 28px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.2px !important;
+    background: var(--apple-blue) !important;
+    border: none !important;
+    color: white !important;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition:
+        background 0.3s var(--transition-smooth),
+        transform 0.35s var(--transition-spring),
+        box-shadow 0.35s var(--transition-smooth);
+    box-shadow:
+        0 2px 8px rgba(0, 122, 255, 0.30),
+        0 4px 16px rgba(0, 122, 255, 0.18);
+    font-family: var(--font-stack);
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.apple-btn:hover {
+    background: var(--apple-blue-hover) !important;
+    transform: translateY(-2px);
+    box-shadow:
+        0 4px 14px rgba(0, 122, 255, 0.38),
+        0 8px 24px rgba(0, 122, 255, 0.24);
+}
+
+.apple-btn:active {
+    background: var(--apple-blue-active) !important;
+    transform: scale(0.96);
+    transition:
+        background 0.15s var(--transition-smooth),
+        transform 0.2s var(--transition-spring),
+        box-shadow 0.2s var(--transition-smooth);
+    box-shadow:
+        0 1px 4px rgba(0, 122, 255, 0.22),
+        0 2px 8px rgba(0, 122, 255, 0.12);
+}
+
+/* 按钮波纹效果 */
+.apple-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s var(--transition-smooth);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.apple-btn:active::after {
+    opacity: 1;
+    transition: opacity 0.1s ease-out;
+}
+
+/* Loading状态 */
+.apple-btn .btn-loading {
+    display: none;
+    gap: 5px;
+    align-items: center;
+}
+
+.apple-btn.loading .btn-text {
+    display: none;
+}
+
+.apple-btn.loading .btn-loading {
+    display: flex;
+}
+
+.apple-btn.loading {
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+.loading-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: white;
+    animation: loadingBounce 1.2s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.loading-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes loadingBounce {
+    0%,
+    80%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
+}
+
+/* ============ 消息提示 ============ */
+.message {
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    min-height: 20px;
+    transition: all 0.35s var(--transition-damped);
+    opacity: 0;
+    transform: translateY(6px);
+    letter-spacing: -0.1px;
+    font-family: var(--font-stack);
+}
+
+.message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.message.success {
+    color: var(--apple-green);
+}
+
+.message.error {
+    color: var(--apple-red);
+}
+
+.message.info {
+    color: var(--apple-blue);
+}
+
+/* ============ 抖动动画(验证失败) ============ */
+@keyframes shakeDamped {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    10% {
+        transform: translateX(-8px);
+    }
+    22% {
+        transform: translateX(7px);
+    }
+    34% {
+        transform: translateX(-5px);
+    }
+    46% {
+        transform: translateX(4px);
+    }
+    58% {
+        transform: translateX(-2px);
+    }
+    70% {
+        transform: translateX(1px);
+    }
+    82% {
+        transform: translateX(0);
+    }
+}
+
+.shake {
+    animation: shakeDamped 0.7s var(--transition-damped) !important;
+}
+
+/* ============ Tab内容过渡 ============ */
+.tab-pane.fade {
+    transition: opacity 0.35s var(--transition-damped), transform 0.35s var(--transition-damped);
+}
+
+.tab-pane.fade:not(.show) {
+    transform: translateY(8px);
+}
+
+.tab-pane.fade.show {
+    transform: translateY(0);
+}
+
+/* ============ 响应式设计 ============ */
+@media (max-width: 480px) {
+    .auth-wrapper {
+        padding: 12px;
+        max-width: 100%;
+    }
+
+    .auth-card {
+        padding: 28px 20px 24px;
+        border-radius: var(--radius-lg);
+    }
+
+    .auth-title {
+        font-size: 22px;
+    }
+
+    .auth-logo {
+        font-size: 36px;
+    }
+
+    .auth-logo-glow {
+        width: 48px;
+        height: 48px;
+    }
+
+    .apple-btn {
+        height: 48px;
+        font-size: 15px !important;
+        padding: 12px 24px !important;
+    }
+
+    .input-group-apple .form-control {
+        height: 50px;
+        font-size: 14px;
+        border-radius: var(--radius-sm);
+    }
+
+    .auth-tabs .nav-link {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+
+    .flow-orb--1 {
+        width: 200px;
+        height: 200px;
+        filter: blur(60px);
+    }
+    .flow-orb--2 {
+        width: 180px;
+        height: 180px;
+        filter: blur(55px);
+    }
+    .flow-orb--3 {
+        width: 220px;
+        height: 220px;
+        filter: blur(60px);
+    }
+    .flow-orb--4 {
+        width: 160px;
+        height: 160px;
+        filter: blur(50px);
+    }
+}
+
+@media (max-width: 360px) {
+    .auth-card {
+        padding: 22px 16px 20px;
+    }
+    .auth-tabs .nav-link {
+        padding: 7px 10px;
+        font-size: 13px;
+    }
+    .apple-btn {
+        height: 44px;
+        font-size: 14px !important;
+    }
+    .apple-check .form-check-label {
+        font-size: 12px;
+    }
+    .forgot-link {
+        font-size: 12px;
+    }
+}
+
+/* ============ 减少动画偏好 ============ */
+@media (prefers-reduced-motion: reduce) {
+    .flow-orb,
+    .particle,
+    .auth-logo,
+    .auth-logo-glow,
+    .loading-dot {
+        animation-duration: 0s !important;
+        animation: none !important;
+    }
+    .apple-btn {
+        transition-duration: 0.1s !important;
+    }
+    .tab-indicator {
+        transition-duration: 0.1s !important;
+    }
+}
+.auth-background {
+    background-image: url('https://picsum.photos/1920/1080');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}

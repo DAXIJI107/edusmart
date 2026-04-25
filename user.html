@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息 - EduSmart</title>
+    <!-- CSS 库 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/daohanglan.js"></script>
+    <script src="js/user-profile.js"></script>
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        'primary-dark': '#5a6fd5',
+                        secondary: '#764ba2',
+                        success: '#36D399',
+                        danger: '#F87272',
+                        warning: '#FBBD23',
+                        info: '#3ABFF8',
+                        dark: '#2d3748',
+                        light: '#F9FAFB',
+                        'gray-light': '#f1f5f9'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                        'hard': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定义样式 */
+        .profile-page {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .avatar-upload {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        
+        .avatar-upload img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .avatar-upload .edit-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #667eea;
+            color: white;
+            border: 3px solid white;
+            cursor: pointer;
+        }
+        
+        .info-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .info-card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        .edit-btn {
+            background-color: #f1f5f9;
+            border: none;
+            color: #64748b;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn:hover {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+        
+        .badge-pill {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            background-color: white;
+            border-radius: 0 0 12px 12px;
+            padding: 24px;
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: #64748b;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: #667eea;
+            background-color: white;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .form-label {
+            color: #475569;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            padding: 10px 12px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 20px 24px;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: 16px 24px;
+        }
+        
+        .danger-zone {
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 20px;
+            background-color: #fef2f2;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .avatar-upload {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .info-card {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="profile-page">
+    <!-- 导航栏 (将使用统一的导航栏) -->
+    <script src="js/daohanglan.js"></script>
+
+    <main class="container mx-auto px-4 pt-24 pb-12">
+        <div class="row">
+            <!-- 页面标题 -->
+            <div class="col-12 mb-6">
+                <h1 class="text-3xl font-bold text-gray-800"><i class="fas fa-user-circle me-3 text-primary"></i>个人信息</h1>
+                <p class="text-gray-600">查看和管理您的个人资料与账户设置</p>
+            </div>
+            
+            <!-- 左侧个人信息卡片 -->
+            <div class="col-lg-4">
+                <div class="card info-card mb-4">
+                    <div class="card-body text-center p-4">
+                        <!-- 头像 -->
+                        <div class="avatar-upload mb-4">
+                            <img id="avatar-image" src="https://robohash.org/student1" alt="用户头像">
+                            <div class="edit-btn" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户名和等级 -->
+                        <h3 class="font-bold text-xl text-gray-800 mb-1" id="user-name">张三同学</h3>
+                        <p class="text-gray-600 mb-3">高级学习者</p>
+                        <div class="mb-4">
+                            <span class="badge-pill bg-primary text-white">VIP会员</span>
+                            <span class="badge-pill bg-success text-white ms-2">连续学习30天</span>
+                        </div>
+                        
+                        <!-- 基本信息 -->
+                        <div class="text-start">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-envelope me-2"></i>邮箱</span>
+                                <span class="info-value" id="user-email">zhangsan@example.com</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-phone me-2"></i>手机</span>
+                                <span class="info-value" id="user-phone">138****5678</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar me-2"></i>注册时间</span>
+                                <span class="info-value">2023-01-15</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-graduation-cap me-2"></i>学习等级</span>
+                                <span class="info-value">Lv.12</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 学习统计 -->
+                        <div class="mt-5 pt-4 border-t border-gray-200">
+    <h6 class="text-gray-700 font-semibold mb-3"><i class="fas fa-chart-bar me-2"></i>学习统计</h6>
+    <div class="row text-center">
+        <div class="col-6 mb-3">
+            <div class="text-primary font-bold text-xl" id="stat-study-hours">0</div>
+            <div class="text-gray-600 text-sm">学习时长(小时)</div>
+        </div>
+        <div class="col-6 mb-3">
+            <div class="text-success font-bold text-xl" id="stat-courses">0</div>
+            <div class="text-gray-600 text-sm">已完成课程</div>
+        </div>
+        <div class="col-6">
+            <div class="text-warning font-bold text-xl" id="stat-mastery">0%</div>
+            <div class="text-gray-600 text-sm">知识点掌握</div>
+        </div>
+        <div class="col-6">
+            <div class="text-info font-bold text-xl" id="stat-answers">0</div>
+            <div class="text-gray-600 text-sm">答对题目</div>
+        </div>
+    </div>
+</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 快速操作卡片 -->
+                <div class="card info-card">
+                    <div class="card-body p-4">
+                        <h5 class="font-bold text-gray-800 mb-3"><i class="fas fa-bolt me-2 text-warning"></i>快速操作</h5>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="location.href='home.html'">
+                                <i class="fas fa-home me-2"></i>返回学习中心
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="location.href='study-report.html'">
+                                <i class="fas fa-chart-line me-2"></i>查看学习报告
+                            </button>
+                            <button class="btn btn-outline-success" onclick="location.href='course.html'">
+                                <i class="fas fa-book me-2"></i>浏览课程
+                            </button>
+                            <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#achievementsModal">
+                                <i class="fas fa-trophy me-2"></i>查看成就
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧信息编辑区域 -->
+            <div class="col-lg-8">
+                <!-- 选项卡导航 -->
+                <ul class="nav nav-tabs" id="profileTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                            <i class="fas fa-user-edit me-2"></i>基本信息
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                            <i class="fas fa-shield-alt me-2"></i>账户安全
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab">
+                            <i class="fas fa-cog me-2"></i>偏好设置
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
+                            <i class="fas fa-bell me-2"></i>消息通知
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- 选项卡内容 -->
+                <div class="tab-content" id="profileTabContent">
+                    <!-- 基本信息选项卡 -->
+                    <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                        <h4 class="font-bold text-gray-800 mb-4">编辑个人信息</h4>
+                        <form id="basicInfoForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="inputName" class="form-label">姓名</label>
+                                    <input type="text" class="form-control" id="inputName" value="张三" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="inputNickname" class="form-label">昵称</label>
+                                    <input type="text" class="form-control" id="inputNickname" value="张三同学" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="inputEmail" class="form-label">邮箱地址</label>
+                                    <input type="email" class="form-control" id="inputEmail" value="zhangsan@example.com" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="inputPhone" class="form-label">手机号码</label>
+                                    <input type="tel" class="form-control" id="inputPhone" value="13800138000" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="inputGender" class="form-label">性别</label>
+                                    <select class="form-select" id="inputGender">
+                                        <option value="male" selected>男</option>
+                                        <option value="female">女</option>
+                                        <option value="other">其他</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="inputBirthday" class="form-label">出生日期</label>
+                                    <input type="date" class="form-control" id="inputBirthday" value="2000-05-15">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="inputBio" class="form-label">个人简介</label>
+                                <textarea class="form-control" id="inputBio" rows="4" placeholder="介绍一下你自己...">热爱学习，尤其擅长数学和物理，正在准备大学入学考试，希望与志同道合的同学一起进步！</textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="inputInterests" class="form-label">学习兴趣</label>
+                                <div class="d-flex flex-wrap gap-2" id="interests-tags">
+                                    <!-- 兴趣标签将通过JavaScript动态生成 -->
+                                </div>
+                                <input type="text" class="form-control mt-2" id="inputInterest" placeholder="添加兴趣标签（按回车添加）">
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary me-2" id="resetBasicForm">重置</button>
+                                <button type="submit" class="btn btn-primary">保存更改</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- 账户安全选项卡 -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <h4 class="font-bold text-gray-800 mb-4">账户安全设置</h4>
+                        
+                        <!-- 修改密码 -->
+                        <div class="card border-0 bg-gray-50 mb-4">
+                            <div class="card-body">
+                                <h5 class="font-bold text-gray-800 mb-3"><i class="fas fa-key me-2"></i>修改密码</h5>
+                                <form id="changePasswordForm">
+                                    <div class="mb-3">
+                                        <label for="currentPassword" class="form-label">当前密码</label>
+                                        <input type="password" class="form-control" id="currentPassword" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="newPassword" class="form-label">新密码</label>
+                                            <input type="password" class="form-control" id="newPassword" required>
+                                            <div class="form-text">密码长度至少8位，包含字母和数字</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="confirmPassword" class="form-label">确认新密码</label>
+                                            <input type="password" class="form-control" id="confirmPassword" required>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary">更新密码</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- 登录记录 -->
+                        <div class="card border-0 bg-gray-50 mb-4">
+                            <div class="card-body">
+                                <h5 class="font-bold text-gray-800 mb-3"><i class="fas fa-history me-2"></i>最近登录记录</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>时间</th>
+                                                <th>设备</th>
+                                                <th>IP地址</th>
+                                                <th>状态</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2023-11-26 14:30</td>
+                                                <td>Chrome浏览器</td>
+                                                <td>192.168.1.105</td>
+                                                <td><span class="badge bg-success">成功</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-11-25 09:15</td>
+                                                <td>iOS App</td>
+                                                <td>192.168.1.102</td>
+                                                <td><span class="badge bg-success">成功</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-11-24 22:45</td>
+                                                <td>Android App</td>
+                                                <td>192.168.1.101</td>
+                                                <td><span class="badge bg-success">成功</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-11-23 18:20</td>
+                                                <td>Chrome浏览器</td>
+                                                <td>192.168.1.100</td>
+                                                <td><span class="badge bg-warning">异常登录</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 危险区域 -->
+                        <div class="danger-zone">
+                            <h5 class="font-bold text-red-600 mb-3"><i class="fas fa-exclamation-triangle me-2"></i>危险操作</h5>
+                            <p class="text-gray-700 mb-3">这些操作将永久影响您的账户，请谨慎操作。</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="font-semibold text-gray-800">注销账户</h6>
+                                    <p class="text-gray-600 mb-0 text-sm">永久删除您的账户和所有数据</p>
+                                </div>
+                                <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">注销账户</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 偏好设置选项卡 -->
+                    <div class="tab-pane fade" id="preferences" role="tabpanel">
+                        <h4 class="font-bold text-gray-800 mb-4">学习偏好设置</h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-gray-50 mb-4">
+                                    <div class="card-body">
+                                        <h5 class="font-bold text-gray-800 mb-3"><i class="fas fa-palette me-2"></i>界面设置</h5>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">主题模式</label>
+                                            <div class="d-flex gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="theme" id="lightTheme" checked>
+                                                    <label class="form-check-label" for="lightTheme">
+                                                        <i class="fas fa-sun me-1"></i> 浅色模式
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="theme" id="darkTheme">
+                                                    <label class="form-check-label" for="darkTheme">
+                                                        <i class="fas fa-moon me-1"></i> 深色模式
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="fontSize" class="form-label">字体大小</label>
+                                            <select class="form-select" id="fontSize">
+                                                <option value="small">较小</option>
+                                                <option value="normal" selected>正常</option>
+                                                <option value="large">较大</option>
+                                                <option value="xlarge">特大</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">学习界面布局</label>
+                                            <select class="form-select" id="layoutPreference">
+                                                <option value="standard">标准布局</option>
+                                                <option value="compact" selected>紧凑布局</option>
+                                                <option value="spacious">宽松布局</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-gray-50 mb-4">
+                                    <div class="card-body">
+                                        <h5 class="font-bold text-gray-800 mb-3"><i class="fas fa-book-open me-2"></i>学习设置</h5>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">默认学习模式</label>
+                                            <select class="form-select" id="studyMode">
+                                                <option value="sequential">顺序学习</option>
+                                                <option value="adaptive" selected>自适应学习</option>
+                                                <option value="test-driven">测试驱动学习</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">每日学习目标</label>
+                                            <input type="number" class="form-control" id="dailyGoal" value="120" min="30" max="300">
+                                            <div class="form-text">分钟/天</div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">学习提醒</label>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" id="breakReminders" checked>
+                                                <label class="form-check-label" for="breakReminders">休息提醒（每45分钟）</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="dailyGoalReminder" checked>
+                                                <label class="form-check-label" for="dailyGoalReminder">每日目标提醒</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" id="resetPreferences">重置为默认</button>
+                            <button type="button" class="btn btn-primary" id="savePreferences">保存设置</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 消息通知选项卡 -->
+                    <div class="tab-pane fade" id="notifications" role="tabpanel">
+                        <h4 class="font-bold text-gray-800 mb-4">消息通知设置</h4>
+                        
+                        <div class="card border-0 bg-gray-50 mb-4">
+                            <div class="card-body">
+                                <h5 class="font-bold text-gray-800 mb-3"><i class="fas fa-bell me-2"></i>通知偏好</h5>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="allNotifications" checked>
+                                        <label class="form-check-label" for="allNotifications">
+                                            <strong>启用所有通知</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6 class="font-semibold text-gray-700 mb-2">学习相关通知</h6>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="courseUpdates" checked>
+                                        <label class="form-check-label" for="courseUpdates">课程更新通知</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="assignmentDeadlines" checked>
+                                        <label class="form-check-label" for="assignmentDeadlines">作业截止提醒</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="studyReminders" checked>
+                                        <label class="form-check-label" for="studyReminders">学习提醒</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="progressReports" checked>
+                                        <label class="form-check-label" for="progressReports">学习进度报告</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6 class="font-semibold text-gray-700 mb-2">系统通知</h6>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="systemUpdates" checked>
+                                        <label class="form-check-label" for="systemUpdates">系统更新通知</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="maintenanceAlerts">
+                                        <label class="form-check-label" for="maintenanceAlerts">维护提醒</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="policyUpdates">
+                                        <label class="form-check-label" for="policyUpdates">政策更新通知</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6 class="font-semibold text-gray-700 mb-2">营销通知</h6>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="promotionalOffers">
+                                        <label class="form-check-label" for="promotionalOffers">促销活动</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="newFeatures">
+                                        <label class="form-check-label" for="newFeatures">新功能通知</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="notificationFrequency" class="form-label">通知频率</label>
+                                    <select class="form-select" id="notificationFrequency">
+                                        <option value="realtime">实时通知</option>
+                                        <option value="daily" selected>每日摘要</option>
+                                        <option value="weekly">每周摘要</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" id="resetNotifications">全部禁用</button>
+                            <button type="button" class="btn btn-primary" id="saveNotifications">保存设置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 修改头像模态框 -->
+    <div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改头像</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-upload-lg mb-3">
+                            <img id="avatar-preview" src="https://randomuser.me/api/portraits/men/32.jpg" alt="头像预览">
+                        </div>
+                        <p class="text-muted">支持 JPG、PNG 格式，建议尺寸 200x200 像素</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">选择头像</label>
+                        <div class="d-flex flex-wrap gap-3 mb-3" id="avatar-options">
+                            <!-- 头像选项将通过JavaScript动态生成 -->
+                        </div>
+                        <button class="btn btn-outline-primary w-100" id="upload-avatar-btn">
+                            <i class="fas fa-upload me-2"></i>上传自定义头像
+                        </button>
+                        <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-avatar-btn">保存头像</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成就模态框 -->
+    <div class="modal fade" id="achievementsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-trophy me-2 text-warning"></i>学习成就</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- 成就列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注销账户确认模态框 -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger"><i class="fas fa-exclamation-triangle me-2"></i>确认注销账户</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-slash fa-4x text-danger mb-3"></i>
+                        <h4 class="text-danger mb-3">此操作不可逆</h4>
+                        <p class="text-muted">您确定要永久注销您的账户吗？这将删除所有个人数据、学习记录和课程进度。</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="confirmDelete1">
+                            <label class="form-check-label" for="confirmDelete1">
+                                我理解此操作将永久删除我的账户
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="confirmDelete2">
+                            <label class="form-check-label" for="confirmDelete2">
+                                我理解此操作无法撤销
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmDelete3">
+                            <label class="form-check-label" for="confirmDelete3">
+                                我确认已备份所有重要数据
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="deleteReason" class="form-label">注销原因（可选）</label>
+                        <textarea class="form-control" id="deleteReason" rows="2" placeholder="请告诉我们您注销账户的原因..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAccount" disabled>确认注销</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 库 -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+   <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        // ========== 1. 从后端加载最新用户数据 ==========
+        const profile = window.userProfile;
+        if (profile) {
+            // 尝试从服务器强制同步，确保数据最新
+            await profile.fetchAndSync();
+        }
+        const userData = profile ? profile.getProfile() : {};
+
+        // ========== 2. 填充左侧卡片信息 ==========
+        document.getElementById('user-name').textContent = userData.nickname || userData.username || userData.name || '用户';
+        document.getElementById('user-email').textContent = userData.email || '';
+        document.getElementById('user-phone').textContent = userData.phoneDisplay || userData.phone || '';
+        document.getElementById('avatar-image').src = userData.avatar || 'https://robohash.org/student1';
+
+       // 学习统计
+const stats = userData.studyStats || {};
+document.getElementById('stat-study-hours').textContent = stats.studyHours || 0;
+document.getElementById('stat-courses').textContent = stats.completedCourses || 0;
+document.getElementById('stat-mastery').textContent = (stats.knowledgeMastery || 0) + '%';
+document.getElementById('stat-answers').textContent = stats.correctAnswers || 0;
+
+        // ========== 3. 填充表单 ==========
+        document.getElementById('inputName').value = userData.name || '';
+        document.getElementById('inputNickname').value = userData.nickname || '';
+        document.getElementById('inputEmail').value = userData.email || '';
+        document.getElementById('inputPhone').value = userData.phone || '';
+        document.getElementById('inputGender').value = userData.gender || 'male';
+        document.getElementById('inputBirthday').value = userData.birthday || '2000-05-15';
+        document.getElementById('inputBio').value = userData.bio || '';
+
+        // ========== 4. 兴趣标签 ==========
+        const interestsContainer = document.getElementById('interests-tags');
+        const interests = userData.interests || [];
+        function renderInterests() {
+            interestsContainer.innerHTML = '';
+            interests.forEach(interest => {
+                const tag = document.createElement('span');
+                tag.className = 'badge bg-info text-white d-flex align-items-center me-2 mb-2';
+                tag.innerHTML = `${interest}<button type="button" class="btn-close btn-close-white ms-2" style="font-size:10px;" aria-label="移除"></button>`;
+                interestsContainer.appendChild(tag);
+                tag.querySelector('button').addEventListener('click', async () => {
+                    const idx = interests.indexOf(interest);
+                    if (idx > -1) {
+                        interests.splice(idx, 1);
+                        await saveInterests();
+                        renderInterests();
+                    }
+                });
+            });
+        }
+        renderInterests();
+
+        document.getElementById('inputInterest').addEventListener('keypress', async function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const newInterest = this.value.trim();
+                if (newInterest && !interests.includes(newInterest)) {
+                    interests.push(newInterest);
+                    await saveInterests();
+                    renderInterests();
+                }
+                this.value = '';
+            }
+        });
+
+        async function saveInterests() {
+            // 同步到后端（可单独接口，或随基本信息一起提交）
+            await profile.updateProfile({ interests });
+            // 可选：调用独立 API 保存兴趣
+            // await fetch('/api/user/interests', { method: 'PUT', ... });
+        }
+
+        // ========== 5. 基本信息表单提交 ==========
+        document.getElementById('basicInfoForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const updates = {
+                name: document.getElementById('inputName').value,
+                nickname: document.getElementById('inputNickname').value,
+                email: document.getElementById('inputEmail').value,
+                phone: document.getElementById('inputPhone').value,
+                gender: document.getElementById('inputGender').value,
+                birthday: document.getElementById('inputBirthday').value,
+                bio: document.getElementById('inputBio').value
+            };
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // 更新本地 userProfile，会自动触发全局 UI 刷新
+                    await profile.updateProfile(updates);
+                    showToast('个人信息已更新！', 'success');
+                } else {
+                    showToast(data.message || '更新失败', 'danger');
+                }
+            } catch (err) {
+                showToast('网络错误，更新失败', 'danger');
+            }
+        });
+
+        // ========== 6. 头像上传（模拟） ==========
+        document.getElementById('save-avatar-btn').addEventListener('click', async function() {
+            const newAvatar = document.getElementById('avatar-preview').src;
+            try {
+                const res = await fetch('/api/user/avatar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ avatar: newAvatar }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await profile.updateProfile({ avatar: newAvatar });
+                    document.getElementById('avatar-image').src = newAvatar;
+                    showToast('头像已更新！', 'success');
+                }
+            } catch (err) {
+                showToast('头像更新失败', 'danger');
+            }
+            bootstrap.Modal.getInstance(document.getElementById('avatarModal')).hide();
+        });
+
+        // ========== 7. 修改密码（异步提交） ==========
+        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (newPassword.length < 8) {
+                showToast('密码长度至少8位', 'danger');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showToast('两次输入的密码不一致', 'danger');
+                return;
+            }
+            try {
+                const res = await fetch('/api/user/password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword, newPassword }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('密码修改成功', 'success');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showToast(data.message || '修改失败', 'danger');
+                }
+            } catch (err) {
+                showToast('网络错误', 'danger');
+            }
+        });
+
+        // ========== 8. 偏好设置和通知设置（暂时仅本地保存，可扩展） ==========
+        // ... 保留原有逻辑 ...
+
+        // ========== 9. Toast 功能 ==========
+        function showToast(message, type = 'info') {
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center text-bg-${type === 'success' ? 'success' : 'danger'} border-0 position-fixed bottom-0 end-0 m-3`;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+            document.body.appendChild(toastEl);
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+    });
+</script>
+</body>
+</html>

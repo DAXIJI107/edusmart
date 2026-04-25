@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduSmart - 登录</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    </script>
+    <script src="/js/script.js"></script>
+        <script src="/js/index.js"></script>
+    </script>
+</head>
+<body class="auth-page">
+    <!--
+    ============ 动态流动背景层 ============
+    背景图片：image.png（请将您的图片放置在与本HTML相同的目录下，
+    或修改下方CSS中 .auth-background 的 background-image 路径）
+    -->
+    <div class="auth-background">
+        <!-- 色调融合叠加层 - 让图片与苹果风格统一 -->
+        <div class="auth-overlay"></div>
+        <!-- 流动光球 - 在图片上方飘动，增添动态氛围 -->
+        <div class="flow-orb flow-orb--1"></div>
+        <div class="flow-orb flow-orb--2"></div>
+        <div class="flow-orb flow-orb--3"></div>
+        <div class="flow-orb flow-orb--4"></div>
+    </div>
+
+    <!-- 微光粒子容器 - 增加灵动感 -->
+    <div class="particles-container" id="particles-container"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Logo和标题 -->
+            <div class="auth-header text-center mb-4">
+                <div class="auth-logo-wrapper">
+                    <i class="fas fa-brain auth-logo"></i>
+                    <div class="auth-logo-glow"></div>
+                </div>
+                <h2 class="auth-title">EduSmart</h2>
+                <p class="auth-subtitle">智能学习平台</p>
+            </div>
+
+            <!-- 标签切换 -->
+            <div class="auth-tabs-wrapper">
+                <ul class="nav nav-tabs auth-tabs" id="authTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">
+                            <i class="fas fa-sign-in-alt me-2"></i>登录
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">
+                            <i class="fas fa-user-plus me-2"></i>注册
+                        </button>
+                    </li>
+                </ul>
+                <span class="tab-indicator" id="tab-indicator"></span>
+            </div>
+
+            <!-- 标签内容 -->
+            <div class="tab-content" id="authTabContent">
+                <!-- 登录表单 -->
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <form id="login-form" class="auth-form">
+                        <div class="form-floating mb-3 input-group-apple">
+                            <input type="text" class="form-control" id="login-username" placeholder="用户名" required>
+                            <label for="login-username"><i class="fas fa-user me-2 label-icon"></i>用户名</label>
+                            <span class="input-focus-ring"></span>
+                        </div>
+                        <div class="form-floating mb-3 input-group-apple">
+                            <input type="password" class="form-control" id="login-password" placeholder="密码" required>
+                            <label for="login-password"><i class="fas fa-lock me-2 label-icon"></i>密码</label>
+                            <span class="input-focus-ring"></span>
+                            <button type="button" class="password-toggle" tabindex="-1" aria-label="显示密码">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="form-check apple-check">
+                                <input class="form-check-input" type="checkbox" id="remember-me">
+                                <label class="form-check-label" for="remember-me">记住我</label>
+                            </div>
+                            <a href="#" class="text-decoration-none forgot-link">忘记密码?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-auth w-100 apple-btn">
+                            <span class="btn-text">登录</span>
+                            <span class="btn-loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></span>
+                        </button>
+                        <div id="login-message" class="message mt-3"></div>
+                    </form>
+                </div>
+
+                <!-- 注册表单 -->
+                <div class="tab-pane fade" id="register" role="tabpanel">
+                    <form id="register-form" class="auth-form">
+                        <div class="form-floating mb-3 input-group-apple">
+                            <input type="text" class="form-control" id="register-username" placeholder="用户名" required>
+                            <label for="register-username"><i class="fas fa-user me-2 label-icon"></i>用户名</label>
+                            <span class="input-focus-ring"></span>
+                        </div>
+                        <div class="form-floating mb-3 input-group-apple">
+                            <input type="email" class="form-control" id="register-email" placeholder="邮箱" required>
+                            <label for="register-email"><i class="fas fa-envelope me-2 label-icon"></i>邮箱</label>
+                            <span class="input-focus-ring"></span>
+                        </div>
+                        <div class="form-floating mb-3 input-group-apple">
+                            <input type="password" class="form-control" id="register-password" placeholder="密码" required>
+                            <label for="register-password"><i class="fas fa-lock me-2 label-icon"></i>密码</label>
+                            <span class="input-focus-ring"></span>
+                            <button type="button" class="password-toggle" tabindex="-1" aria-label="显示密码">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-floating mb-3 input-group-apple">
+                            <input type="password" class="form-control" id="register-confirm-password" placeholder="确认密码" required>
+                            <label for="register-confirm-password"><i class="fas fa-lock me-2 label-icon"></i>确认密码</label>
+                            <span class="input-focus-ring"></span>
+                            <span class="password-match-icon"></span>
+                        </div>
+                        <div class="form-check mb-3 apple-check">
+                            <input class="form-check-input" type="checkbox" id="agree-terms" required>
+                            <label class="form-check-label" for="agree-terms">
+                                我已阅读并同意<a href="#" class="text-decoration-none terms-link">服务条款</a>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-auth w-100 apple-btn">
+                            <span class="btn-text">注册</span>
+                            <span class="btn-loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></span>
+                        </button>
+                        <div id="register-message" class="message mt-3"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

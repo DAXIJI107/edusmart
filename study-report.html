@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduSmart - 学习报告</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/unified-styles.css">
+    <!-- 引入 Tailwind CSS -->
+     <script src="js/daohanglan.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入导出功能所需的库 -->
+     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/study-report-pdf.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        'primary-dark': '#5a6fd5',
+                        secondary: '#764ba2',
+                        success: '#36D399',
+                        danger: '#F87272',
+                        warning: '#FBBD23',
+                        info: '#3ABFF8',
+                        dark: '#2d3748',
+                        light: '#F9FAFB',
+                        'gray-light': '#f1f5f9'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                        'hard': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="report-page">
+
+    <main class="container mx-auto px-4 pt-24 pb-12">
+        <div class="container mt-4">
+            <div class="row">
+                <!-- 左侧边栏 -->
+                <div class="col-lg-3">
+                    <div class="card filter-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3"><i class="fas fa-calendar-alt me-2 text-primary"></i>报告周期</h5>
+                            <div class="mb-4">
+                                <div class="form-check period-option">
+                                    <input class="form-check-input" type="radio" name="reportPeriod" id="weekReport" checked>
+                                    <label class="form-check-label" for="weekReport">
+                                        <i class="fas fa-calendar-week me-2"></i>本周
+                                    </label>
+                                </div>
+                                <div class="form-check period-option">
+                                    <input class="form-check-input" type="radio" name="reportPeriod" id="monthReport">
+                                    <label class="form-check-label" for="monthReport">
+                                        <i class="fas fa-calendar-month me-2"></i>本月
+                                    </label>
+                                </div>
+                                <div class="form-check period-option">
+                                    <input class="form-check-input" type="radio" name="reportPeriod" id="quarterReport">
+                                    <label class="form-check-label" for="quarterReport">
+                                        <i class="fas fa-calendar-alt me-2"></i>本季度
+                                    </label>
+                                </div>
+                                <div class="form-check period-option">
+                                    <input class="form-check-input" type="radio" name="reportPeriod" id="customReport">
+                                    <label class="form-check-label" for="customReport">
+                                        <i class="fas fa-calendar-day me-2"></i>自定义
+                                    </label>
+                                </div>
+                                <div class="mt-3" id="customDateRange" style="display: none;">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text"><i class="fas fa-calendar-start"></i></span>
+                                        <input type="date" class="form-control" id="startDate">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar-end"></i></span>
+                                        <input type="date" class="form-control" id="endDate">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="card-title mb-3"><i class="fas fa-filter me-2 text-primary"></i>筛选条件</h5>
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-book me-2"></i>学科</label>
+                                <select class="form-select" id="subjectFilter">
+                                    <option value="all">全部学科</option>
+                                    <option value="math">数学</option>
+                                    <option value="physics">物理</option>
+                                    <option value="chemistry">化学</option>
+                                    <option value="english">英语</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn btn-primary w-100 mt-3 generate-btn" id="generateReport">
+                                <i class="fas fa-sync-alt me-2"></i>生成报告
+                            </button>
+                            
+                            <div class="mt-4">
+                                <h5 class="card-title"><i class="fas fa-download me-2 text-primary"></i>导出报告</h5>
+                                <button class="btn btn-outline-primary w-100 mb-2 export-btn" id="exportPdf">
+                                    <i class="fas fa-file-pdf me-2"></i> PDF格式
+                                </button>
+                                <button class="btn btn-outline-secondary w-100 export-btn" id="exportExcel">
+                                    <i class="fas fa-file-excel me-2"></i> Excel格式
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 主内容区 -->
+                <div class="col-lg-9">
+                    <!-- 报告标题 -->
+                    <div class="card report-header-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h2 class="report-title"><i class="fas fa-chart-line me-3 text-primary"></i>学习报告</h2>
+                                    <p class="report-date-range text-muted mb-0">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <span id="report-date-range">2023年11月20日 - 2023年11月26日</span>
+                                    </p>
+                                </div>
+                                <div class="report-badges">
+                                    <span class="badge bg-primary"><i class="fas fa-calendar-week me-1"></i>本周</span>
+                                    <span class="badge bg-light text-dark ms-2"><i class="fas fa-user-graduate me-1"></i><span id="report-username">张三同学</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 学习概览 -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="card-title text-muted">学习时长</h6>
+                                            <h2 class="mb-0 stat-value" id="totalStudyTime">18.5</h2>
+                                            <small class="text-muted">小时</small>
+                                        </div>
+                                        <div class="stat-icon">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                    </div>
+                                    <div class="stat-trend mt-3">
+                                        <small class="text-muted">较上周</small>
+                                        <span class="text-success ms-2"><i class="fas fa-arrow-up"></i> 12%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="card-title text-muted">知识点掌握</h6>
+                                            <h2 class="mb-0 stat-value" id="knowledgeMastery">78</h2>
+                                            <small class="text-muted">%</small>
+                                        </div>
+                                        <div class="stat-icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                    </div>
+                                    <div class="stat-trend mt-3">
+                                        <small class="text-muted">较上周</small>
+                                        <span class="text-success ms-2"><i class="fas fa-arrow-up"></i> 8%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card stat-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="card-title text-muted">学习效率</h6>
+                                            <h2 class="mb-0 stat-value" id="studyEfficiency">86</h2>
+                                            <small class="text-muted">%</small>
+                                        </div>
+                                        <div class="stat-icon">
+                                            <i class="fas fa-bolt"></i>
+                                        </div>
+                                    </div>
+                                    <div class="stat-trend mt-3">
+                                        <small class="text-muted">较上周</small>
+                                        <span class="text-danger ms-2"><i class="fas fa-arrow-down"></i> 3%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 学习趋势图表 -->
+                     <!-- 行为分析卡片 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>学习行为分析</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <canvas id="emotionChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <canvas id="metaChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <p class="text-muted">活跃天数</p>
+                            <h3 id="active-days">0</h3>
+                            <p class="text-muted mt-3">平均元认知参与度</p>
+                            <h3 id="avg-meta">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                    <div class="card mb-4 chart-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>学习趋势</h5>
+                                <div class="btn-group btn-group-sm chart-tabs">
+                                    <button class="btn btn-outline-primary active">时长</button>
+                                    <button class="btn btn-outline-primary">掌握度</button>
+                                    <button class="btn btn-outline-primary">效率</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="studyTrendChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- 知识点掌握情况 -->
+                        <div class="col-md-6">
+                            <div class="card h-100 knowledge-card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-project-diagram me-2 text-success"></i>知识点掌握情况</h5>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span><i class="fas fa-square-root-alt me-2"></i>数学</span>
+                                            <span>82%</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-success progress-bar-striped" role="progressbar" style="width: 82%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span><i class="fas fa-atom me-2"></i>物理</span>
+                                            <span>75%</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span><i class="fas fa-flask me-2"></i>化学</span>
+                                            <span>68%</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-info progress-bar-striped" role="progressbar" style="width: 68%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span><i class="fas fa-language me-2"></i>英语</span>
+                                            <span>58%</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-warning progress-bar-striped" role="progressbar" style="width: 58%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <h6 class="text-muted mb-3"><i class="fas fa-chart-pie me-2"></i>知识点状态分布</h6>
+                                        <div class="knowledge-distribution">
+                                            <div class="knowledge-item">
+                                                <div class="knowledge-node node-mastered" data-bs-toggle="tooltip" title="已掌握"></div>
+                                                <div class="knowledge-label">已掌握</div>
+                                                <div class="knowledge-percent">42%</div>
+                                            </div>
+                                            <div class="knowledge-item">
+                                                <div class="knowledge-node node-learning" data-bs-toggle="tooltip" title="学习中"></div>
+                                                <div class="knowledge-label">学习中</div>
+                                                <div class="knowledge-percent">36%</div>
+                                            </div>
+                                            <div class="knowledge-item">
+                                                <div class="knowledge-node node-weak" data-bs-toggle="tooltip" title="薄弱点"></div>
+                                                <div class="knowledge-label">薄弱点</div>
+                                                <div class="knowledge-percent">15%</div>
+                                            </div>
+                                            <div class="knowledge-item">
+                                                <div class="knowledge-node node-untouched" data-bs-toggle="tooltip" title="未学习"></div>
+                                                <div class="knowledge-label">未学习</div>
+                                                <div class="knowledge-percent">7%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 学习效率分析 -->
+                        <div class="col-md-6">
+                            <div class="card h-100 efficiency-card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-tachometer-alt me-2 text-warning"></i>学习效率分析</h5>
+                                    <div class="text-center mb-4">
+                                        <canvas id="efficiencyChart" height="200"></canvas>
+                                    </div>
+                                    <div class="efficiency-stats">
+                                        <div class="efficiency-stat">
+                                            <span class="stat-label"><i class="fas fa-clock me-2"></i>最佳学习时段</span>
+                                            <span class="stat-value text-success">09:00-11:00</span>
+                                        </div>
+                                        <div class="efficiency-stat">
+                                            <span class="stat-label"><i class="fas fa-hourglass-half me-2"></i>平均专注时长</span>
+                                            <span class="stat-value text-success">45分钟</span>
+                                        </div>
+                                        <div class="efficiency-stat">
+                                            <span class="stat-label"><i class="fas fa-bell-slash me-2"></i>平均分心次数</span>
+                                            <span class="stat-value text-warning">3次/小时</span>
+                                        </div>
+                                        <div class="efficiency-stat">
+                                            <span class="stat-label"><i class="fas fa-redo me-2"></i>复习间隔</span>
+                                            <span class="stat-value text-danger">3.2天</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <h6 class="text-muted mb-3"><i class="fas fa-lightbulb me-2"></i>效率提升建议</h6>
+                                        <ul class="suggestion-list">
+                                            <li class="suggestion-item"><i class="fas fa-check-circle text-success me-2"></i>保持早晨高效学习时段</li>
+                                            <li class="suggestion-item"><i class="fas fa-check-circle text-success me-2"></i>使用番茄工作法效果良好</li>
+                                            <li class="suggestion-item"><i class="fas fa-exclamation-triangle text-warning me-2"></i>下午学习效率下降明显</li>
+                                            <li class="suggestion-item"><i class="fas fa-exclamation-triangle text-warning me-2"></i>需要缩短复习间隔时间</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 错题分析 -->
+                    <div class="card mt-4 error-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>错题分析</h5>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover error-table">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-book me-2"></i>知识点</th>
+                                            <th><i class="fas fa-percentage me-2"></i>错误率</th>
+                                            <th><i class="fas fa-times-circle me-2"></i>错题数</th>
+                                            <th><i class="fas fa-tags me-2"></i>错误类型</th>
+                                            <th><i class="fas fa-lightbulb me-2"></i>改进建议</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="error-analysis-table">
+                                        <tr>
+                                            <td>三角函数公式变换</td>
+                                            <td>45%</td>
+                                            <td>9</td>
+                                            <td><span class="badge bg-danger">公式记忆</span></td>
+                                            <td>建议制作公式卡片每日复习</td>
+                                        </tr>
+                                        <tr>
+                                            <td>导数极值应用</td>
+                                            <td>38%</td>
+                                            <td>7</td>
+                                            <td><span class="badge bg-warning">概念理解</span></td>
+                                            <td>观看相关教学视频加深理解</td>
+                                        </tr>
+                                        <tr>
+                                            <td>空间向量计算</td>
+                                            <td>32%</td>
+                                            <td>6</td>
+                                            <td><span class="badge bg-info">计算错误</span></td>
+                                            <td>加强空间想象能力训练</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="error-actions mt-3">
+                                <button class="btn btn-primary btn-sm" id="view-error-book">
+                                    <i class="fas fa-book me-1",onClick=fun()></i> 查看错题本
+                                </button>
+                                
+                                <button class="btn btn-outline-primary btn-sm ms-2" id="generate-practice">
+                                    <i class="fas fa-plus me-1"></i> 生成专项练习
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+<script>
+    // ========== 北京时间格式化工具 ==========
+    function toBeijingTime(date) {
+        return new Date(date).toLocaleDateString('zh-CN', {
+            timeZone: 'Asia/Shanghai',
+            year: 'numeric', month: '2-digit', day: '2-digit'
+        });
+    }
+
+    // ========== 加载报告数据（后端获取） ==========
+    async function loadReportData() {
+        const period = document.querySelector('input[name="reportPeriod"]:checked').id.replace('Report', '');
+        const subject = document.getElementById('subjectFilter').value;
+        const startDate = document.getElementById('startDate')?.value;
+        const endDate = document.getElementById('endDate')?.value;
+
+        try {
+            const res = await fetch('/api/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ period, subject, startDate, endDate }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                updateAllReportData(data.data);
+            } else {
+                console.warn('报告接口返回失败，使用本地数据');
+                useLocalFallback();
+            }
+        } catch (error) {
+            console.error('获取报告失败:', error);
+            useLocalFallback();
+        }
+    }
+
+    // ========== 本地回退（使用 userProfile） ==========
+    function useLocalFallback() {
+        const profile = window.userProfile?.getProfile() || {};
+        document.getElementById('report-username').textContent = profile.nickname || profile.username || '同学';
+        document.getElementById('totalStudyTime').textContent = profile.studyStats?.studyHours || 0;
+        document.getElementById('knowledgeMastery').textContent = profile.studyStats?.knowledgeMastery || 0;
+        document.getElementById('studyEfficiency').textContent = profile.studyStats?.studyEfficiency || 0;
+        // 日期范围示例：本周一到周日（北京时间）
+        const now = new Date();
+        const day = now.getDay() || 7; // 周日为7
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - day + 1);
+        const sunday = new Date(now);
+        sunday.setDate(monday.getDate() + 6);
+        document.getElementById('report-date-range').textContent = 
+            `${toBeijingTime(monday)} - ${toBeijingTime(sunday)}`;
+    }
+
+    // ========== 更新所有报告数据 ==========
+    function updateAllReportData(data) {
+        // 基本信息
+        document.getElementById('report-username').textContent = data.studentName || '同学';
+        document.getElementById('report-date-range').textContent = 
+            `${toBeijingTime(data.dateRange.start)} - ${toBeijingTime(data.dateRange.end)}`;
+        
+        // 概览
+        document.getElementById('totalStudyTime').textContent = data.summary.totalStudyTime || 0;
+        document.getElementById('knowledgeMastery').textContent = data.summary.knowledgeMastery || 0;
+        document.getElementById('studyEfficiency').textContent = data.summary.studyEfficiency || 0;
+        
+        // 趋势图表重新渲染（需先销毁旧的）
+        if (window.studyTrendChart) {
+            window.studyTrendChart.destroy();
+        }
+        renderMainChart(data.charts.trend);
+        
+        // 知识点掌握情况、错题分析等更新（类似处理）
+        updateKnowledgeSection(data.knowledge);
+        updateErrorTable(data.errors);
+        updateEfficiencySection(data.efficiency);
+    }
+
+    // ========== 渲染主趋势图 ==========
+    function renderMainChart(trendData) {
+        const ctx = document.getElementById('studyTrendChart');
+        if (!ctx) return;
+        window.studyTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData.labels.map(d => toBeijingTime(d)),
+                datasets: [{
+                    label: '学习时长(小时)',
+                    data: trendData.time,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102,126,234,0.1)',
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: true } } }
+        });
+    }
+
+    // 其他更新函数（知识点、错题等）根据实际接口返回实现
+    // ...
+
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        // 先用本地数据显示用户名
+        const profile = window.userProfile?.getProfile() || {};
+        document.getElementById('report-username').textContent = profile.nickname || profile.username || '同学';
+        
+        // 请求后端生成报告
+        loadReportData();
+        
+        // 行为分析图表加载（如果后接口存在）
+        loadBehaviorReport(); // 保留原有
+    });
+</script>
+</html>

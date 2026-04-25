@@ -1,0 +1,25 @@
+/* ai-path.css - 学习路径专属样式 */
+.path-step-card {
+    transition: all 0.2s ease;
+}
+.path-step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.stat-card {
+    transition: transform 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+.step-index {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.progress-bar {
+    transition: width 0.5s ease;
+}

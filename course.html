@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程中心 - EduSmart · 哔哩哔哩资源</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/unified-styles.css">
+    <script src="js/daohanglan.js"></script>
+    <script src="js/user-profile.js"></script>
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        'primary-dark': '#5a6fd5',
+                        secondary: '#764ba2',
+                        success: '#36D399',
+                        danger: '#F87272',
+                        warning: '#FBBD23',
+                        info: '#3ABFF8',
+                        dark: '#2d3748',
+                        light: '#F9FAFB',
+                        'gray-light': '#f1f5f9'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                        'hard': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .bilibili-cover {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter">
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-24 pb-12">
+        <!-- 页面标题 -->
+        <div class="text-center mb-10 animate-fade-in">
+            <div class="inline-flex items-center justify-center bg-primary/10 text-primary rounded-full px-4 py-1 mb-3">
+                <i class="fas fa-book-open mr-2"></i>
+                <span>哔哩哔哩优质课程</span>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">
+                按学习路径顺序推荐
+            </h1>
+            <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                基于你的学习进度，为你精选了B站免费视频课程，点击即可学习。
+            </p>
+        </div>
+
+        <!-- 搜索和筛选区（可保留，但暂时简化） -->
+        <div class="bg-white rounded-xl p-6 shadow-soft mb-8 animate-fade-in card-hover" style="animation-delay: 0.1s">
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="md:col-span-2">
+                    <div class="relative">
+                        <input type="text" id="course-search" placeholder="搜索知识点..." 
+                               class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-primary focus:ring-primary shadow-sm">
+                        <div class="absolute left-3 top-2.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <select id="difficulty-filter" class="w-full rounded-lg border-gray-300 bg-white py-2 px-4 pr-10 text-sm focus:border-primary focus:ring-primary shadow-sm">
+                        <option value="all">所有难度</option>
+                        <option value="easy">简单</option>
+                        <option value="medium">中等</option>
+                        <option value="hard">困难</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="refresh-btn" class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新列表
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 课程列表容器 -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="courses-container">
+            <!-- 动态生成卡片 -->
+            <div class="text-center py-10 col-span-3">
+                <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                <p class="mt-4 text-gray-500">正在加载课程资源...</p>
+            </div>
+        </div>
+
+        <!-- 分页控件（可保留，但先隐藏，因为数据量不大） -->
+        <div class="mt-10 flex justify-center hidden">
+            <!-- 分页按钮可以后续实现 -->
+        </div>
+    </main>
+
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (navbar) {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
+            }
+        });
+
+        // DOM元素
+        const coursesContainer = document.getElementById('courses-container');
+        const searchInput = document.getElementById('course-search');
+        const difficultyFilter = document.getElementById('difficulty-filter');
+        const refreshBtn = document.getElementById('refresh-btn');
+
+        // 全局存储原始课程数据
+        let allCourses = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCourses();
+            bindEvents();
+        });
+
+        function bindEvents() {
+            if (searchInput) searchInput.addEventListener('input', filterCourses);
+            if (difficultyFilter) difficultyFilter.addEventListener('change', filterCourses);
+            if (refreshBtn) refreshBtn.addEventListener('click', loadCourses);
+        }
+
+        // 从后端加载学习路径数据
+        async function loadCourses() {
+            coursesContainer.innerHTML = `
+                <div class="text-center py-10 col-span-3">
+                    <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                    <p class="mt-4 text-gray-500">正在加载课程资源...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch('/api/ai/learning-path', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await res.json();
+
+                if (result.success && result.data && result.data.steps) {
+                    // 存储原始数据（包含掌握度等信息）
+                    allCourses = result.data.steps.map(step => ({
+                        id: step.id,
+                        name: step.name,
+                        description: step.description || '暂无描述',
+                        difficulty: step.difficulty,
+                        mastery: step.mastery,
+                        // 由于步骤数据中不包含bvid，我们需要额外请求每个知识点的详细信息
+                        // 这里我们调用批量获取接口，或者直接依赖步骤中的信息（如果步骤已包含bvid，需要在后端返回）
+                        // 为了简化，我们假设步骤对象中已经有bvid字段（需要后端返回）
+                        // 如果后端没有返回bvid，我们只能再发请求逐个获取
+                        bvid: step.bvid || '' // 如果后端返回了bvid，直接使用
+                    }));
+
+                    // 如果步骤中没有bvid，则需要逐个获取详情
+                    if (!allCourses[0]?.bvid) {
+                        await enrichWithBvid();
+                    } else {
+                        renderCourses(allCourses);
+                    }
+                } else {
+                    showEmpty('暂无学习路径数据，请先完成一些学习。');
+                }
+            } catch (error) {
+                console.error('加载课程失败:', error);
+                showEmpty('加载失败，请检查网络或稍后重试。');
+            }
+        }
+
+        // 补充bvid（如果步骤中没有）
+        async function enrichWithBvid() {
+            const enriched = [];
+            for (const course of allCourses) {
+                try {
+                    const detailRes = await fetch(`/api/knowledge/${course.id}`, { credentials: 'include' });
+                    const detail = await detailRes.json();
+                    if (detail.success) {
+                        course.bvid = detail.data.bvid;
+                        course.description = detail.data.description || course.description;
+                    }
+                } catch (e) {
+                    console.warn(`获取知识点${course.id}详情失败`);
+                }
+                enriched.push(course);
+            }
+            allCourses = enriched; 
+            renderCourses(enriched);
+        }
+
+        // 渲染课程卡片
+       function renderCourses(courses) {
+    if (!courses || courses.length === 0) {
+        showEmpty('暂无课程，请先添加知识点。');
+        return;
+    }
+
+    coursesContainer.innerHTML = '';
+
+    courses.forEach(course => {
+        const difficultyClass = {
+            'easy': 'bg-green-100 text-green-800',
+            'medium': 'bg-yellow-100 text-yellow-800',
+            'hard': 'bg-red-100 text-red-800'
+        }[course.difficulty] || 'bg-gray-100 text-gray-800';
+
+        const difficultyText = {
+            'easy': '简单',
+            'medium': '中等',
+            'hard': '困难'
+        }[course.difficulty] || course.difficulty;
+
+        // 根据 bvid 生成真实的 B 站封面图（无跨域问题）
+        const bvid = course.bvid;
+        const defaultCover = 'https://i0.hdslb.com/bfs/archive/6e6f5a7a0f3e8d6b3d9c7a6b5e4d3c2b1a0f9e8d.jpg'; // 通用占位
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-soft overflow-hidden card-hover';
+        card.innerHTML = `
+            <div class="h-40 bg-gray-200 overflow-hidden relative cursor-pointer" 
+                 onclick="${bvid ? `window.open('https://www.bilibili.com/video/${bvid}', '_blank')` : ''}">
+                <img src="${defaultCover}" alt="${course.name}" class="w-full h-full object-cover">
+                ${bvid ? `
+                <div class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity">
+                    <div class="text-white text-4xl"><i class="fab fa-bilibili"></i></div>
+                    <span class="text-white ml-2 text-lg font-bold">播放视频</span>
+                </div>
+                ` : ''}
+                <div class="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                    <i class="fab fa-bilibili mr-1"></i> BV:${bvid || '无'}
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-bold text-gray-800 line-clamp-1">${course.name}</h3>
+                    <span class="text-xs px-2 py-1 rounded-full ${difficultyClass}">${difficultyText}</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3 line-clamp-2">${course.description || '暂无描述'}</p>
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-chart-line mr-1"></i>掌握度 ${course.mastery || 0}%
+                    </div>
+                    <a href="course-detail.html?knowledgeId=${course.id}" class="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition">
+                        <i class="fas fa-play mr-1"></i>开始学习
+                    </a>
+                </div>
+            </div>
+        `;
+        coursesContainer.appendChild(card);
+    });
+}
+
+        function showEmpty(msg) {
+            coursesContainer.innerHTML = `
+                <div class="col-span-3 text-center py-10">
+                    <i class="fas fa-book-open text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-medium text-gray-600">${msg}</h3>
+                </div>
+            `;
+        }
+
+        // 搜索和筛选（简单实现）
+        function filterCourses() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const difficulty = difficultyFilter.value;
+
+            const filtered = allCourses.filter(course => {
+                const matchesSearch = course.name.toLowerCase().includes(searchTerm) || 
+                                     course.description.toLowerCase().includes(searchTerm);
+                const matchesDifficulty = difficulty === 'all' || course.difficulty === difficulty;
+                return matchesSearch && matchesDifficulty;
+            });
+
+            renderCourses(filtered);
+        }
+    </script>
+</body>
+</html>
